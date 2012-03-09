@@ -27,7 +27,21 @@ end
 package "python-swauth" do
   action :upgrade
   options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--foce-confdef'"
-  #  not_if node[:swift][:authmethod] != "swauth" ... or something
+  only_if { node[:swift][:authmode] == :swauth }
 end
 
+service "swift-proxy" do
+  supports :status => true, :restart => true
+  action :enable
+  only_if { File.exists?("/etc/swift/proxy-server.conf") and File.exists?("/etc/swift/object.ring.gz") }
+end
+
+template "/etc/swift/proxy-server.conf" do
+  source "proxy-server.conf.erb"
+  owner "swift"
+  group "swift"
+
+  mode "0600"
+  notifies :restart, resources(:service => "swift-proxy"), :immediately
+end
 

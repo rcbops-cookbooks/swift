@@ -18,6 +18,10 @@
 #
 
 file "/etc/swift" do
-  action :create_if_missing
+  action :create
+  owner "swift"
+  group "swift"
+  mode "0600"
+  only_if "id swift"
 end
 
