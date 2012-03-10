@@ -22,8 +22,21 @@ package "rsyncd" do
   options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
 end
 
-# template "/etc/rsyncd.conf" do
-#   source "rsyncd.conf.erb"
-#   notifies :restart, resources(:service => "rsyncd"), :immediately
-# end
+service "rsync" do
+  supports :status => true, :restart => true
+  action :enable
+end
+
+execute "enable rsync" do
+  command "sed -i 's/RSYNC_ENABLE=false/RSYNC_ENABLE=true/' /etc/default/rsync"
+  only_if "grep -q 'RSYNC_ENABLE=false' /etc/default/rsync"
+  notifies :restart, resources(:service => "rsync"), :immediately
+  action :run
+end
+
+template "/etc/rsyncd.conf" do
+  source "rsyncd.conf.erb"
+  mode "0644"
+  notifies :restart, resources(:service => "rsync"), :immediately
+end
 
