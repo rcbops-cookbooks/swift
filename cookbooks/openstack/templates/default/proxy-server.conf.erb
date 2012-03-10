@@ -1,3 +1,5 @@
+<% if node[:swift][:authmode] == :swauth then pipeline="swauth" else pipline="keystone" end %>
+
 [DEFAULT]
 # bind_ip = 0.0.0.0
 # bind_port = 80
@@ -14,7 +16,7 @@
 # log_level = INFO
 
 [pipeline:main]
-pipeline = catch_errors healthcheck cache ratelimit tempauth proxy-server
+pipeline = catch_errors healthcheck cache ratelimit <%= pipeline %> proxy-server
 
 [app:proxy-server]
 use = egg:swift#proxy
@@ -49,6 +51,9 @@ use = egg:swift#proxy
 # If set to 'true' authorized accounts that do not yet exist within the Swift
 # cluster will be automatically created.
 # account_autocreate = false
+
+[filter:swauth]
+use = egg:swauth#swauth
 
 [filter:healthcheck]
 use = egg:swift#healthcheck

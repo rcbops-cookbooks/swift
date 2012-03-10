@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: openstack
-# Recipe:: swift-proxy
+# Recipe:: swift-proxy-server
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -21,26 +21,25 @@ include_recipe "openstack::swift-common"
 
 package "swift-proxy" do
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--foce-confdef'"
+  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
 end
 
 package "python-swauth" do
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--foce-confdef'"
+  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
   only_if { node[:swift][:authmode] == :swauth }
 end
 
 service "swift-proxy" do
   supports :status => true, :restart => true
   action :enable
-  only_if { File.exists?("/etc/swift/proxy-server.conf") and File.exists?("/etc/swift/object.ring.gz") }
+  only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
 end
 
 template "/etc/swift/proxy-server.conf" do
   source "proxy-server.conf.erb"
   owner "swift"
   group "swift"
-
   mode "0600"
   notifies :restart, resources(:service => "swift-proxy"), :immediately
 end

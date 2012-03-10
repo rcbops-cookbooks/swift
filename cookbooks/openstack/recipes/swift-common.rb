@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-file "/etc/swift" do
+directory "/etc/swift" do
   action :create
   owner "swift"
   group "swift"
