@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: openstack
-# Recipe:: swift-proxy
+# Recipe:: swift-common
 #
 # Copyright 2012, Rackspace Hosting
 #
