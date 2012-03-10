@@ -18,6 +18,7 @@
 #
 
 include_recipe "openstack::swift-common"
+include_recipe "openstack::memcached"
 
 package "swift-proxy" do
   action :upgrade
