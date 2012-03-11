@@ -33,7 +33,7 @@ if ( ! gpg --list-keys --secret-keyring /etc/apt/secring.gpg --trustdb-name /etc
 fi
 
 cat > /etc/apt/sources.list.d/opscode.list <<EOF
-deb http://apt.opscode.com/ $(lsb_release -cs) main
+deb http://apt.opscode.com/ $(lsb_release -cs)-0.10 main
 EOF
 
 cat <<EOF | debconf-set-selections
