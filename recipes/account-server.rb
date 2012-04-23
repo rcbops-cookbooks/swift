@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe "swift::swift-common"
+include_recipe "swift::common"
 
 package "swift-account" do
   action :upgrade
