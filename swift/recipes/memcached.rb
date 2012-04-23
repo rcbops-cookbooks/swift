@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: openstack
+# Cookbook Name:: swift
 # Recipe:: memcached
 #
 # Copyright 2012, Rackspace Hosting

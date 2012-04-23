@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: openstack
+# Cookbook Name:: swift
 # Recipe:: swift-object-server
 #
 # Copyright 2012, Rackspace Hosting
@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe "openstack::swift-common"
+include_recipe "swift::swift-common"
 
 package "swift-object" do
   action :upgrade

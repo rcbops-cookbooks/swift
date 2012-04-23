@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: openstack
+# Cookbook Name:: swift
 # Recipe:: swift-proxy-server
 #
 # Copyright 2012, Rackspace Hosting
@@ -17,8 +17,8 @@
 # limitations under the License.
 #
 
-include_recipe "openstack::swift-common"
-include_recipe "openstack::memcached"
+include_recipe "swift::swift-common"
+include_recipe "swift::memcached"
 
 package "swift-proxy" do
   action :upgrade
