@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-if node[:swift][:authmode] == :swauth then
+if node["swift"]["authmode"] == :swauth then
   package "memcached" do
     action :upgrade
     options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"

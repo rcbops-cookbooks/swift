@@ -28,7 +28,7 @@ end
 package "python-swauth" do
   action :upgrade
   options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-  only_if { node[:swift][:authmode] == :swauth }
+  only_if { node["swift"]["authmode"] == :swauth }
 end
 
 service "swift-proxy" do
