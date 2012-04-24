@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: swift-account-server
+# Recipe:: swift-management-server
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -18,25 +18,9 @@
 #
 
 include_recipe "swift::common"
-include_recipe "swift::drive-audit"
-include_recipe "swift::disks"
+include_recipe "swift::proxy-server"
 
-package "swift-account" do
+package "swift" do
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-end
-
-service "swift-account" do
-  supports :status => true, :restart => true
-  action :enable
-  only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"
-end
-
-template "/etc/swift/account-server.conf" do
-  source "account-server.conf.erb"
-  owner "swift"
-  group "swift"
-  mode "0600"
-  notifies :restart, resources(:service => "swift-account"), :immediately
 end
 
