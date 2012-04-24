@@ -1,5 +1,14 @@
-<% if node[:swift][:authmode] == :swauth then pipeline="swauth" else pipline="keystone" end %>
+<%
+if node[:swift][:authmode] == :swauth then
+  pipeline="swauth" else pipline="keystone"
+end
 
+if node[:roles].include?("swift-management-server") and node[:swift][:authmode] == :swauth then
+  account_management="true"
+else
+  account_management="false"
+end
+-%>
 [DEFAULT]
 # bind_ip = 0.0.0.0
 # bind_port = 80
@@ -42,7 +51,7 @@ use = egg:swift#proxy
 # error_suppression_limit = 10
 # If set to 'true' any authorized user may create and delete accounts; if
 # 'false' no one, even authorized, can.
-# allow_account_management = false
+allow_account_management = <%= account_management %>
 # Set object_post_as_copy = false to turn on fast posts where only the metadata
 # changes are stored anew and the original data file is kept in place. This
 # makes for quicker posts; but since the container metadata isn't updated in
