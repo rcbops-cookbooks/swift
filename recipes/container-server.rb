@@ -18,6 +18,7 @@
 #
 
 include_recipe "swift::common"
+include_recipe "swift::drive-audit"
 
 package "swift-container" do
   action :upgrade
