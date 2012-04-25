@@ -20,6 +20,10 @@
 include_recipe "swift::common"
 include_recipe "swift::proxy-server"
 
+# FIXME: This should probably be a role (ring-builder?), so you don't end up
+# with multiple repos!
+include_recipe "swift::ring-repo"
+
 package "swift" do
   action :upgrade
 end
