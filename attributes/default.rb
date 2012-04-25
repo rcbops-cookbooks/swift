@@ -14,10 +14,10 @@ default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ 
                                          "info['removable'] = 0"
                                        ]
 
-# this method of disk discovery is preferable, as it can be specified
-# by operator, rather than being surprising.  If the "expected_disks"
-# parameter is set, it will be used in preference to "disk_enum_expr".
-# disk_test_filter will still be evaluated, however.
+# If set, this identifies an operator expected list of drives to use.
+# If the system has fewer (or other) drives than this, processing will
+# fail.  This is a way to ensure that random, undesired drives don't get
+# picked up.  Really just a safety net.
 
-# default["swift"]["expected_disks"] = '("b".."g").collect{|x| "/dev/sd#{x}"}'
+# default["swift"]["expected_disks"] = '("b".."f").collect{|x| "sd#{x}"}'
 
