@@ -44,13 +44,19 @@ if node[:swift].has_key?(:expected_disks)
   end
 end
 
-node[:swift][:devs] = []
+if not node[:swift].has_key?(:state)
+  node[:swift][:state] = {}
+end
+
+node[:swift][:state][:devs] = {}
+
 to_use_disks.each { |k,v|
-  target_suffix=k + "1"
+  next if !File.exists?("/dev/#{k}")
+
+  target_suffix= "#{k}1"
   target_dev = "/dev/#{target_suffix}"
 
-  Chef::Log.info "pre-processing device #{target_dev}"
-  next if !File.exists?("/dev/#{k}")
+  Chef::Log.info("target dev: #{target_dev}")
 
   swift_disk "/dev/#{k}" do
     Chef::Log.info "processing device #{target_dev}"
@@ -58,30 +64,46 @@ to_use_disks.each { |k,v|
     action :ensure_exists
   end
 
-  directory "/srv/node/#{target_suffix}" do
+  # should make a unique label on this and mount by label
+  execute "make xfs filesystem on #{k}" do
+    # jmaltin added "-f" to force creation.  Probably a bad idea."
+    command "mkfs.xfs -f -i size=512 #{target_dev}"
+    ## test if the FS is already an XFS file system.
+    not_if "xfs_admin -l #{target_dev}"
+  end
+
+  target_uuid = `blkid #{target_dev} -s UUID -o value`.strip
+
+  directory "/srv/node/#{target_uuid}" do
     group "swift"
     owner "swift"
     recursive true
     action :create
   end
 
-  mount "/srv/node/#{target_suffix}"  do
-    device target_dev
+  execute "mount-#{target_uuid}" do
+    command "sudo mount /srv/node/#{target_uuid}"
+    action :nothing
+  end
+
+  mount "/srv/node/#{target_uuid}" do
+    device target_uuid
+    device_type :uuid
     options "noatime,nodiratime,nobarrier,logbufs=8"
     dump 0
     fstype "xfs"
     action :enable
+    notifies :run, resources(:execute => "mount-#{target_uuid}"), :immediately
   end
 
-  # should make a unique label on this and mount by label
-  execute "make xfs filesystem on #{k}" do
-    # jmaltin added "-f" to force creation.  Probably a bad idea."
-    command "mkfs.xfs -f -i size=512 #{target_dev}; mount -a /srv/node/#{target_suffix}"
-    ## test if the FS is already an XFS file system.
-    not_if "xfs_admin -l #{target_dev}"
-  end
+  target_size = `sfdisk -s #{target_dev}`.to_i / 1024 # in Mb
+  target_mounted = system("mount | grep #{target_dev}")
 
   ####
   # publish the disks
-  node[:swift][:devs] <<  {:name=>target_suffix, :size=> :remaining}
+  node[:swift][:state][:devs][target_uuid] = {
+    :device => target_suffix,
+    :size => target_size,
+    :uuid => target_uuid,
+    :mounted => target_mounted }
 }
