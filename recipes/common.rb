@@ -26,6 +26,15 @@ directory "/etc/swift" do
   only_if "/usr/bin/id swift"
 end
 
+file "/etc/swift/swift.conf" do
+  action :create
+  owner "swift"
+  group "swift"
+  mode "0700"
+  content "[swift-hash]\nswift_hash_path_suffix=#{node[:swift][:swift_hash]}"
+  only_if "/usr/bin/id swift"
+end
+
 # need a shell to dsh, among other things
 user "swift" do
   shell "/bin/bash"
@@ -50,7 +59,6 @@ template "/etc/swift/pull-rings.sh" do
 end
 
 execute "/etc/swift/pull-rings.sh" do
-  user "swift"
   cwd "/etc/swift"
   only_if "[ -x /etc/swift/pull-rings.sh ]"
 end
