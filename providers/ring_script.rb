@@ -86,7 +86,8 @@ def generate_script
     end
   end
 
-  # we have full data now, can process drops and adds
+  # Have the raw data, now bump it together and drop the script
+
   s = "#!/bin/bash\n\n# This script is automatically generated.\n"
   s << "# Running it will likely blow up your system if you don't review it carefully.\n"
   s << "# You have been warned.\n\n"
@@ -107,7 +108,8 @@ def generate_script
     s << "\n# -- #{which.capitalize} Servers --\n\n"
     disk_data[which].keys.sort.each do |ip|
       s << "# #{ip}\n"
-      disk_data[which][ip].each do |k,v|
+      disk_data[which][ip].keys.sort.each do |k|
+        v = disk_data[which][ip][k]
         s << "#  " +  v.keys.sort.reject{|x| x == "ip"}.collect{|x| "#{v[x]}" }.join(", ")
         if new_disks[which].has_key?(v["uuid"])
           s << " (NEW!)"
