@@ -16,6 +16,8 @@
 # Author: andi abes
 # Supporting butchery by: ron pedde <ron.pedde@rackspace.com>
 
+include_recipe "osops-utils"
+
 %q(xfsprogs parted util-linux).each do |pkg|
   package pkg do
     action :upgrade
@@ -34,7 +36,7 @@ candidates_expression="all_disks.select{|candidate,info| (" +
   filters.map{|x| "(#{x})"}.join(" and ") + ")}"
 to_use_disks=Hash[eval(candidates_expression)]
 
-Chef::Log.info("will use these disks: #{to_use_disks.keys.join(':')}")
+Chef::Log.info("will use these disks: #{to_use_disks.keys.join(', ')} based on filter #{candidates_expression}")
 
 if node[:swift].has_key?(:expected_disks)
   expected_disks = eval(node[:swift][:expected_disks])
@@ -44,10 +46,7 @@ if node[:swift].has_key?(:expected_disks)
   end
 end
 
-if not node[:swift].has_key?(:state)
-  node[:swift][:state] = {}
-end
-
+node[:swift][:state] ||= {}
 node[:swift][:state][:devs] = {}
 
 to_use_disks.each { |k,v|
@@ -97,7 +96,8 @@ to_use_disks.each { |k,v|
   end
 
   target_size = `sfdisk -s #{target_dev}`.to_i / 1024 # in Mb
-  target_mounted = system("mount | grep #{target_dev}")
+  target_mounted = system("mount | grep #{target_uuid}")
+  target_ip = IPManagement.get_ip_for_net("swift", node)
 
   ####
   # publish the disks
@@ -105,5 +105,6 @@ to_use_disks.each { |k,v|
     :device => target_suffix,
     :size => target_size,
     :uuid => target_uuid,
-    :mounted => target_mounted }
+    :mounted => target_mounted,
+    :ip => target_ip }
 }

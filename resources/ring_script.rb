@@ -33,10 +33,10 @@
 actions :ensure_exists
 
 attribute :name,                   :kind_of => String
-attribute :owner,                  :kind_of => String
-attribute :group,                  :kind_of => String
-attribute :mode,                   :kind_of => String
-attribute :ring_path,              :kind_of => String
+attribute :owner,                  :kind_of => String, :default => "root"
+attribute :group,                  :kind_of => String, :default => "root"
+attribute :mode,                   :kind_of => String, :default => "0600"
+attribute :ring_path,              :kind_of => String, :default => "/etc/swift"
 
 
 
