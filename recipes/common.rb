@@ -21,7 +21,14 @@ directory "/etc/swift" do
   action :create
   owner "swift"
   group "swift"
-  mode "0600"
-  only_if "id swift"
+  mode "0700"
+  only_if "/usr/bin/id swift"
+end
+
+# need a shell to dsh, among other things
+user "swift" do
+  shell "/bin/bash"
+  action :modify
+  only_if "/usr/bin/id swift"
 end
 
