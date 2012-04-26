@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+include_recipe "osops-utils"
 
 directory "/etc/swift" do
   action :create
@@ -31,4 +32,27 @@ user "swift" do
   action :modify
   only_if "/usr/bin/id swift"
 end
+
+package "git" do
+  action :upgrade
+end
+
+# drop a ring puller script so we can dsh ring pulls
+template "/etc/swift/pull-rings.sh" do
+  source "pull-rings.sh.erb"
+  owner "swift"
+  group "swift"
+  mode "0700"
+  variables({
+              :builder_ip => IPManagement.get_ips_for_role("swift-management-server","swift",node)
+            })
+  only_if "/usr/bin/id swift"
+end
+
+execute "/etc/swift/pull-rings.sh" do
+  user "swift"
+  cwd "/etc/swift"
+  only_if "[ -x /etc/swift/pull-rings.sh ]"
+end
+
 

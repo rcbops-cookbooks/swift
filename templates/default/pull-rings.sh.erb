@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ ! -d /etc/swift/rings ] || [ ! -e /etc/swift/rings/.git/config ]; then
+    rm -rf /etc/swift/rings
+    git clone git://<%= @builder_ip %>/rings /etc/swift/rings
+fi
+
+cd /etc/swift/rings
+git reset --hard
+git clean -df
+git pull
+
+for d in object account container; do
+    if [ "$(md5sum ${d}.ring.gz)" != "$(md5sum ..${d}.ring.gz)" ]; then
+	cp ${d}.ring.gz ../${d}.ring.new
+	mv ../${d}.ring.new ../${d}.ring.gz
+	if [ -e /etc/init.d/swift-${d}-replicator ]; then
+	    /etc/init.d/swift-${d}-replicator restart
+	fi
+    fi
+done
+
