@@ -24,7 +24,14 @@ include_recipe "swift::proxy-server"
 # with multiple repos!
 include_recipe "swift::ring-repo"
 
-package "swift" do
-  action :upgrade
+packagelist=["swift"]
+if node[:swift][:authmode] == :swauth then
+  packagelist << "swauth"
+end
+
+packagelist.each do |pkg|
+  package pkg do
+    action :upgrade
+  end
 end
 

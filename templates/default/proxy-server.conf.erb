@@ -1,14 +1,22 @@
 <%
-if node[:swift][:authmode] == :swauth then
-  pipeline="swauth" else pipline="keystone"
+pipeline="keystone"
+if node[:swift][:authmode] == "swauth" then
+  pipeline="swauth"
 end
 
-if node[:roles].include?("swift-management-server") and node[:swift][:authmode] == :swauth then
+account_management=false
+if node[:roles].include?("swift-management-server") and node[:swift][:authmode] == "swauth" then
   account_management="true"
-else
-  account_management="false"
 end
 -%>
+# This file is managed by chef.  Do not edit it.
+#
+# Cluster info:
+#   Auth mode: <%= node[:swift][:authmode] %>
+#   Management server: <%= node[:roles].include?("swift-management-server") %>
+#   Account management enabled: <%= account_management %>
+#   Auth pipeline: <%= pipeline %>
+
 [DEFAULT]
 # bind_ip = 0.0.0.0
 # bind_port = 80
@@ -23,6 +31,8 @@ end
 # log_name = swift
 # log_facility = LOG_LOCAL0
 # log_level = INFO
+######
+workers = <%= [ node[:cpu][:total] - 1, 1 ].max %>
 
 [pipeline:main]
 pipeline = catch_errors healthcheck cache ratelimit <%= pipeline %> proxy-server
@@ -51,7 +61,7 @@ use = egg:swift#proxy
 # error_suppression_limit = 10
 # If set to 'true' any authorized user may create and delete accounts; if
 # 'false' no one, even authorized, can.
-allow_account_management = <%= account_management %>
+# allow_account_management = false
 # Set object_post_as_copy = false to turn on fast posts where only the metadata
 # changes are stored anew and the original data file is kept in place. This
 # makes for quicker posts; but since the container metadata isn't updated in
@@ -60,9 +70,18 @@ allow_account_management = <%= account_management %>
 # If set to 'true' authorized accounts that do not yet exist within the Swift
 # cluster will be automatically created.
 # account_autocreate = false
+######
+allow_account_management = <%= account_management %>
+
 
 [filter:swauth]
 use = egg:swauth#swauth
+# set log_name = swauth
+# super_admin_key = <secret_key>
+######
+<% if account_management -%>
+super_admin_key = <%= node[:swift][:authkey] %>
+<% end -%>
 
 [filter:healthcheck]
 use = egg:swift#healthcheck
