@@ -18,7 +18,7 @@
 #
 
 include_recipe "swift::common"
-include_recipe "swift::drive-audit"
+include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
 package "swift-object" do
@@ -26,10 +26,12 @@ package "swift-object" do
   options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
 end
 
-service "swift-object" do
-  supports :status => true, :restart => true
-  action :enable
-  only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
+%W(swift-object swift-object-replicator swift-object-auditor swift-object-updater).each do |svc|
+  service svc do
+    supports :status => true, :restart => true
+    action :enable
+    only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
+  end
 end
 
 template "/etc/swift/object-server.conf" do
@@ -37,6 +39,14 @@ template "/etc/swift/object-server.conf" do
   owner "swift"
   group "swift"
   mode "0600"
-  notifies :restart, resources(:service => "swift-object"), :immediately
+  notifies :restart, "service[swift-object]", :immediately
+  notifies :restart, "service[swift-object-replicator]", :immediately
+  notifies :restart, "service[swift-object-updater]", :immediately
+  notifies :restart, "service[swift-object-auditor]", :immediately
 end
 
+cron "swift-recon" do
+  minute "*/5"
+  command "swift-recon-cron /etc/swift/object-server.conf"
+  user "swift"
+end

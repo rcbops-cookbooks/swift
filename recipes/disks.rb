@@ -72,27 +72,28 @@ to_use_disks.each { |k,v|
   end
 
   target_uuid = `blkid #{target_dev} -s UUID -o value`.strip
+  target_mountpoint = target_uuid.split("-").join("")
 
-  directory "/srv/node/#{target_uuid}" do
+  directory "/srv/node/#{target_mountpoint}" do
     group "swift"
     owner "swift"
     recursive true
     action :create
   end
 
-  execute "mount-#{target_uuid}" do
-    command "sudo mount /srv/node/#{target_uuid}"
+  execute "mount-#{target_mountpoint}" do
+    command "sudo mount /srv/node/#{target_mountpoint}"
     action :nothing
   end
 
-  mount "/srv/node/#{target_uuid}" do
+  mount "/srv/node/#{target_mountpoint}" do
     device target_uuid
     device_type :uuid
     options "noatime,nodiratime,nobarrier,logbufs=8"
     dump 0
     fstype "xfs"
     action :enable
-    notifies :run, resources(:execute => "mount-#{target_uuid}"), :immediately
+    notifies :run, resources(:execute => "mount-#{target_mountpoint}"), :immediately
   end
 
   target_size = `sfdisk -s #{target_dev}`.to_i / 1024 # in Mb
@@ -106,5 +107,6 @@ to_use_disks.each { |k,v|
     :size => target_size,
     :uuid => target_uuid,
     :mounted => target_mounted,
+    :mountpoint => target_mountpoint,
     :ip => target_ip }
 }

@@ -46,9 +46,11 @@ def generate_script
 
     # collect all the ring data, and note what disks are in use
     ring_data[:in_use][which] ||= {}
-    ring_data[:parsed][which][:hosts].each do |ip, dev|
-      dev.each do |dev_id, devhash|
-        ring_data[:in_use][which].store(devhash[:device], devhash[:id])
+    if ring_data[:parsed][which][:hosts]
+      ring_data[:parsed][which][:hosts].each do |ip, dev|
+        dev.each do |dev_id, devhash|
+          ring_data[:in_use][which].store(devhash[:device], devhash[:id])
+        end
       end
     end
 
@@ -110,7 +112,7 @@ def generate_script
       s << "# #{ip}\n"
       disk_data[which][ip].keys.sort.each do |k|
         v = disk_data[which][ip][k]
-        s << "#  " +  v.keys.sort.reject{|x| x == "ip"}.collect{|x| "#{v[x]}" }.join(", ")
+        s << "#  " +  v.keys.sort.select{|x| ["ip", "device", "uuid"].include?(x)}.collect{|x| "#{v[x]}" }.join(", ")
         if new_disks[which].has_key?(v["uuid"])
           s << " (NEW!)"
         end
@@ -131,7 +133,7 @@ def generate_script
       disk_data[which][ip].keys.sort.each do |uuid|
         v = disk_data[which][ip][uuid]
         if new_disks[which].has_key?(uuid)
-          s << "swift-ring-builder #{ring_path}/#{which}.builder add z#{v['zone']}-#{v['ip']}:#{ports[which]}/#{v['uuid']} #{v['size']}\n"
+          s << "swift-ring-builder #{ring_path}/#{which}.builder add z#{v['zone']}-#{v['ip']}:#{ports[which]}/#{v['mountpoint']} #{v['size']}\n"
           must_rebalance = true
         end
       end

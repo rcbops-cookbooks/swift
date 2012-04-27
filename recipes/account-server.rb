@@ -18,7 +18,7 @@
 #
 
 include_recipe "swift::common"
-include_recipe "swift::drive-audit"
+include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
 package "swift-account" do
@@ -26,10 +26,12 @@ package "swift-account" do
   options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
 end
 
-service "swift-account" do
-  supports :status => true, :restart => true
-  action :enable
-  only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"
+%W(swift-account swift-account-auditor swift-account-reaper swift-account-replicator).each do |svc|
+  service svc do
+    supports :status => true, :restart => true
+    action :enable
+    only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"
+  end
 end
 
 template "/etc/swift/account-server.conf" do
@@ -37,6 +39,9 @@ template "/etc/swift/account-server.conf" do
   owner "swift"
   group "swift"
   mode "0600"
-  notifies :restart, resources(:service => "swift-account"), :immediately
+  notifies :restart, "service[swift-account]", :immediately
+  notifies :restart, "service[swift-account-auditor]", :immediately
+  notifies :restart, "service[swift-account-reaper]", :immediately
+  notifies :restart, "service[swift-account-replicator]", :immediately
 end
 

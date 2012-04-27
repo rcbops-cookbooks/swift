@@ -18,7 +18,7 @@
 #
 
 include_recipe "swift::common"
-include_recipe "swift::drive-audit"
+include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
 package "swift-container" do
@@ -26,10 +26,12 @@ package "swift-container" do
   options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
 end
 
-service "swift-container" do
-  supports :status => true, :restart => true
-  action :enable
-  only_if "[ -e /etc/swift/container-server.conf ] && [ -e /etc/swift/container.ring.gz ]"
+%W(swift-container swift-container-auditor swift-container-replicator swift-container-updater).each do |svc|
+  service svc do
+    supports :status => true, :restart => true
+    action :enable
+    only_if "[ -e /etc/swift/container-server.conf ] && [ -e /etc/swift/container.ring.gz ]"
+  end
 end
 
 template "/etc/swift/container-server.conf" do
@@ -37,6 +39,9 @@ template "/etc/swift/container-server.conf" do
   owner "swift"
   group "swift"
   mode "0600"
-  notifies :restart, resources(:service => "swift-container"), :immediately
+  notifies :restart, "service[swift-container]", :immediately
+  notifies :restart, "service[swift-container-replicator]", :immediately
+  notifies :restart, "service[swift-container-updater]", :immediately
+  notifies :restart, "service[swift-container-auditor]", :immediately
 end
 

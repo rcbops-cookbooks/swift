@@ -3,12 +3,18 @@ bind_ip = 0.0.0.0
 workers = 2
 
 [pipeline:main]
-pipeline = object-server
+pipeline = recon object-server
+
+[filter:recon]
+use = egg:swift#recon
+recon_cache_path = /var/cache/swift
 
 [app:object-server]
 use = egg:swift#object
 
 [object-replicator]
+recon_enable = yes
+recon_cache_path = /var/cache/swift
 
 [object-updater]
 
