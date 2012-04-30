@@ -38,3 +38,7 @@ directory "/var/cache/swift" do
   mode "0700"
 end
 
+dsh_group "swift-storage" do 
+  user "swift"
+  network "swift"
+end
