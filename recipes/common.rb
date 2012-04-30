@@ -31,7 +31,7 @@ file "/etc/swift/swift.conf" do
   owner "swift"
   group "swift"
   mode "0700"
-  content "[swift-hash]\nswift_hash_path_suffix=#{node[:swift][:swift_hash]}"
+  content "[swift-hash]\nswift_hash_path_suffix=#{node['swift']['swift_hash']}"
   only_if "/usr/bin/id swift"
 end
 

@@ -25,7 +25,7 @@ include_recipe "swift::proxy-server"
 include_recipe "swift::ring-repo"
 
 packagelist=["swift"]
-if node[:swift][:authmode] == :swauth then
+if node["swift"]["authmode"] == "swauth" then
   packagelist << "swauth"
 end
 

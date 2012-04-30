@@ -36,9 +36,9 @@ def generate_script
         # Chef::Log.info("#{ which.capitalize } Ring data: #{ring_data[:raw][which]}")
         ring_data[:parsed][which] = parse_ring_output(ring_data[:raw][which])
 
-        node[:swift][:state] ||= {}
-        node[:swift][:state][:ring] ||= {}
-        node[:swift][:state][:ring][which] = ring_data[:parsed][which]
+        node["swift"]["state"] ||= {}
+        node["swift"]["state"]["ring"] ||= {}
+        node["swift"]["state"]["ring"][which] = ring_data[:parsed][which]
       end
     else
       Chef::Log.info("#{which.capitalize} ring builder files do not exist")
@@ -112,7 +112,7 @@ def generate_script
       s << "# #{ip}\n"
       disk_data[which][ip].keys.sort.each do |k|
         v = disk_data[which][ip][k]
-        s << "#  " +  v.keys.sort.select{|x| ["ip", "device", "uuid"].include?(x)}.collect{|x| "#{v[x]}" }.join(", ")
+        s << "#  " +  v.keys.sort.select{|x| ["ip", "device", "uuid"].include?(x)}.collect{|x| {v[x] }.join(", ")
         if new_disks[which].has_key?(v["uuid"])
           s << " (NEW!)"
         end

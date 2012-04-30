@@ -185,10 +185,8 @@ action :ensure_exists do
 
   if !recreate
     Chef::Log.info("partition table matches - not recreating")
-    @current.updated_by_last_action(false)
+    new_resource.updated_by_last_action(false)
   else
-#    @current.updated_by_last_action(true)
-
     ### make sure to ensure that there are no mounted
     ### filesystems on the device
     re = /^(#{Regexp.escape(dev_name)}[0-9]+)/
@@ -231,6 +229,7 @@ action :ensure_exists do
       end
       idx+=1
     }
+    new_resource.updated_by_last_action(true)
   end
 end
 

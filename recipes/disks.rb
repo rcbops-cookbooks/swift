@@ -24,11 +24,11 @@ include_recipe "osops-utils"
   end
 end
 
-all_disks = eval(node[:swift][:disk_enum_expr])
+all_disks = eval(node["swift"]["disk_enum_expr"])
 
 Chef::Log.info("All disks: #{all_disks.keys.join(',')}")
 
-filters = node[:swift][:disk_test_filter]
+filters = node["swift"]["disk_test_filter"]
 
 to_use_disks={}
 
@@ -38,16 +38,16 @@ to_use_disks=Hash[eval(candidates_expression)]
 
 Chef::Log.info("will use these disks: #{to_use_disks.keys.join(', ')} based on filter #{candidates_expression}")
 
-if node[:swift].has_key?(:expected_disks)
-  expected_disks = eval(node[:swift][:expected_disks])
+if node["swift"].has_key?("expected_disks")
+  expected_disks = eval(node["swift"]["expected_disks"])
   if expected_disks != to_use_disks.keys
     Chef::Log.info("Unexpected disks")
     raise "Unexpected Disks: not #{expected_disks.join(',')}"
   end
 end
 
-node[:swift][:state] ||= {}
-node[:swift][:state][:devs] = {}
+node["swift"]["state"] ||= {}
+node["swift"]["state"]["devs"] = {}
 
 to_use_disks.each { |k,v|
   next if !File.exists?("/dev/#{k}")
@@ -102,7 +102,7 @@ to_use_disks.each { |k,v|
 
   ####
   # publish the disks
-  node[:swift][:state][:devs][target_uuid] = {
+  node["swift"]["state"]["devs"][target_uuid] = {
     :device => target_suffix,
     :size => target_size,
     :uuid => target_uuid,

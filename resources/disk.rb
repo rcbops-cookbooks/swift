@@ -31,6 +31,11 @@
 
 actions :ensure_exists
 
+def initialize(*args)
+  super
+  @action = :ensure_exists
+end
+
 attribute :name,                  :kind_of => String
 attribute :size,                  :kind_of => Integer
 attribute :blocks,                :kind_of => Integer
