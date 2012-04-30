@@ -112,7 +112,7 @@ def generate_script
       s << "# #{ip}\n"
       disk_data[which][ip].keys.sort.each do |k|
         v = disk_data[which][ip][k]
-        s << "#  " +  v.keys.sort.select{|x| ["ip", "device", "uuid"].include?(x)}.collect{|x| {v[x] }.join(", ")
+        s << "#  " +  v.keys.sort.select{|x| ["ip", "device", "uuid"].include?(x)}.collect{|x| v[x] }.join(", ")
         if new_disks[which].has_key?(v["uuid"])
           s << " (NEW!)"
         end
