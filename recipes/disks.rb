@@ -49,6 +49,8 @@ end
 node["swift"]["state"] ||= {}
 node["swift"]["state"]["devs"] = {}
 
+
+# format and mount the acceptable disks
 to_use_disks.each { |k,v|
   next if !File.exists?("/dev/#{k}")
 
@@ -110,3 +112,39 @@ to_use_disks.each { |k,v|
     :mountpoint => target_mountpoint,
     :ip => target_ip }
 }
+
+
+# we'll do this after the run
+ruby_block "remove unused mounts" do
+  block do
+    Dir.new("/srv/node").each do |dir|
+      mounts = node["filesystem"].inject({}) { |hsh, (k,v)| hsh.merge(v["mount"] => k) }
+      valid_mounts = node["swift"]["state"]["devs"].inject([]) { |ary, (_,v)| ary << "/srv/node/#{v[:mountpoint]}" }
+
+      if not dir[0,1] == "."
+        dir = "/srv/node/#{dir}"
+        if not valid_mounts.include?(dir)
+          # not a valid mount point
+          if mounts.keys.include?(dir)
+            # is actively mounted -- let's actively unmount it
+            Chef::Log.info("Unmounting #{dir}, device: #{mounts[dir]}")
+
+            # really?
+            dsl_fail = Chef::Resource::Mount.new(dir, run_context)
+            dsl_fail.device(mounts[dir])
+            [:umount, :disable].each { |x| dsl_fail.run_action(x) }
+          end
+
+          # we'll make a half-hearted attempt to get rid of the mount point.  If it's an empty
+          # directory (i.e. mount), we'll remove it.  Otherwise, leave it.
+          Chef::Log.info("removing bogus file #{dir}")
+          begin
+            Dir.rmdir(dir)
+          rescue SystemCallError
+            Chef::Log.info("Mountpoint #{dir} appears to be non-empty")
+          end
+        end
+      end
+    end
+  end
+end
