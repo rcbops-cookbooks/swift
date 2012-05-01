@@ -44,7 +44,9 @@ def generate_script
       Chef::Log.info("#{which.capitalize} ring builder files do not exist")
     end
 
-    # collect all the ring data, and note what disks are in use
+    # collect all the ring data, and note what disks are in use.  All I really
+    # need is a hash of device and id
+
     ring_data[:in_use][which] ||= {}
     if ring_data[:parsed][which][:hosts]
       ring_data[:parsed][which][:hosts].each do |ip, dev|
@@ -78,7 +80,7 @@ def generate_script
           # keep a running track of available disks
           disk_data[:available] ||= {}
           disk_data[:available][which] ||= {}
-          disk_data[:available][which][v[:uuid]] = v[:ip]
+          disk_data[:available][which][v[:mountpoint]] = v[:ip]
 
           if not v[:mounted]
             dirty_cluster_reasons << "Disk #{v[:name]} (#{v[:uuid]}) is not mounted on host #{v[:ip]} (#{swiftnode[:hostname]})"
