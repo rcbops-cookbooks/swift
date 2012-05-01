@@ -14,6 +14,7 @@ end
 
 depends "osops-utils"
 depends "dsh"
+depends "keystone"
 
 # depends "apt"
 # depends "openssh"

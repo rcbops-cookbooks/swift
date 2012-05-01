@@ -21,8 +21,8 @@ end
 #   Auth pipeline: <%= pipeline %>
 
 [DEFAULT]
-bind_ip = <%= @bind_host %>
-bind_port = <%= @bind_port %>
+# bind_ip = 0.0.0.0
+# bind_port = 8080
 # backlog = 4096
 # swift_dir = /etc/swift
 # workers = 1
@@ -36,6 +36,8 @@ bind_port = <%= @bind_port %>
 # log_level = INFO
 ######
 workers = <%= [ node[:cpu][:total] - 1, 1 ].max %>
+bind_ip = <%= @bind_host %>
+bind_port = <%= @bind_port %>
 
 [pipeline:main]
 pipeline = catch_errors healthcheck cache ratelimit <%= @authmode %> proxy-server
@@ -106,6 +108,8 @@ use = egg:swift#memcache
 # default to the value below. You can specify multiple servers separated with
 # commas, as in: 10.1.2.3:11211,10.1.2.4:11211
 # memcache_servers = 127.0.0.1:11211
+#####
+memcache_servers = <%= @memcache_servers.collect {|x| "#{x}:11211"}.join(",") %>
 
 [filter:ratelimit]
 use = egg:swift#ratelimit

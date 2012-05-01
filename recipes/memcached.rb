@@ -17,22 +17,20 @@
 # limitations under the License.
 #
 
-if node["swift"]["authmode"] == :swauth then
-  package "memcached" do
-    action :upgrade
-    options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-  end
+package "memcached" do
+  action :upgrade
+  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+end
 
-  service "memcached" do
-    supports :status => true, :restart => true
-    action :enable
-  end
+service "memcached" do
+  supports :status => true, :restart => true
+  action :enable
+end
 
-  # FIXME(rp): needs to listen appropriately, or be firewalled?
-  execute "set listening port" do
-    command "sed -i 's/-l 127.0.0.1/-l 0.0.0.0/' /etc/memcached.conf"
-    only_if "grep -q -- '-l 127.0.0.1' /etc/memcached.conf"
-    notifies :restart, resources(:service => "memcached"), :immediately
-    action :run
-  end
+bind_address = IPManagement.get_ip_for_net("swift-private", node)
+execute "set listening port" do
+  command "sed -i 's/^-l .*/-l #{bind_address}/' /etc/memcached.conf"
+  not_if "grep -q -- '-l #{bind_address}' /etc/memcached.conf"
+  notifies :restart, resources(:service => "memcached"), :immediately
+  action :run
 end

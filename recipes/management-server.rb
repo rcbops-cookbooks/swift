@@ -35,7 +35,7 @@ packagelist.each do |pkg|
   end
 end
 
-dsh_group "swift-storage" do
-  admin_user "swift"
-  network "swift"
-end
+# dsh_group "swift-storage" do
+#   admin_user "swift"
+#   network "swift"
+# end

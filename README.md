@@ -20,9 +20,11 @@ Attributes
 ====
 
  * node[:swift][:authmode] - "swauth" or "keystone" (default "swauth")
- * node[:swift][:authkey] - swauth "swauthkey" if using swauth
+
  * node[:swift][:swift_hash] - swift_hash_path_suffix in /etc/swift/swift.conf
+
  * node[:swift][:audit_hour] - Hour to run swift_auditor on storage nodes (default 5)
+
  * node[:swift][:disk_enum_expr] - Eval-able expression that lists
    candidate disk nodes for disk probing.  The result shoule be a hash
    with keys being the device name (without the leading "/dev/") and a
@@ -32,21 +34,38 @@ Attributes
    probably know all the valid devices, and don't need to pass any
    metadata about them, so { "sdc" => {}} is probably enough.  Example
    expression: Hash[('a'..'f').collect{|x| [ "sd{x}", {} ]}]
+
  * node[:swift][:disk_test_filter] - an array of expressions that must
    all be true in order a block deviced to be considered for
    formatting and inclusion in the cluster.  Each rule gets evaluated
    with "candidate" set to the device name (without the leading
    "/dev/") and info set to the node hash value.  Default rules:
+
     * "candidate =~ /sd[^a]/ or candidate =~ /hd[^a]/ or candidate =~
       /vd[^a]/"
+
     * "File.exists?('/dev/ + candidate)"
+
     * "not system('/sbin/sfdisk -V /dev/' + candidate + '>/dev/null 2>&2')"
+
     * "info['removable'] = 0" ])
+
  * node[:swift][:expected_disks] - an array of device names that the
    operator expecs to be identified by the previous two values.  This
    acts as a second-check on discovered disks.  If this array doesn't
    match the found disks, then chef processing will be stopped.
    Example: ("b".."f").collect{|x| "sd#{x}"}.  Default: none.
+
+There are other attributes that must be set depending on authmode.
+For "swauth", the following attributes are used:
+
+ * node[:swift][:authkey] - swauth "swauthkey" if using swauth
+
+For "keystone", the following attributes are used:
+
+ * [:keystone][:admin_port]
+
+ * [:keystone][:admin_token]
 
 In addition, there are some attributs used by osops-utils to find
 interfaces on particular devices.
@@ -54,6 +73,10 @@ interfaces on particular devices.
  * node[:osops_networks][:swift] - CIDR of the storage network (what
    address to bind storage nodes to, what ip address to use in rings,
    etc)
+
+ * node[:osops_networks][:public] - CIDR of the network that
+   that the proxy listens to, or the load balancer for proxies listens
+   on
 
 Deps
 ====

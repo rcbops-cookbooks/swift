@@ -1,5 +1,5 @@
 # valid: :swauth or :keystone
-default["swift"]["authmode"] = :swauth
+default["swift"]["authmode"] = "swauth"
 default["swift"]["audit_hour"] = "5"
 default["swift"]["disk_enum_expr"] = "node[:block_device]"
 
@@ -33,4 +33,11 @@ default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ 
 # picked up.  Really just a safety net.
 
 # default["swift"]["expected_disks"] = '("b".."f").collect{|x| "sd#{x}"}'
+
+# some attributes to control where network interfaces are laid down
+
+# where LB public interfaces get dropped.  Or should these get mapped by convention?
+default["osops_networks"]["mapping"]["swift-lb"] = "public"
+default["osops_networks"]["mapping"]["swift-private"] = "swift"
+default["osops_networks"]["mapping"]["swift-public"] = "public"
 
