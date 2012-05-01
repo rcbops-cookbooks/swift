@@ -13,8 +13,8 @@ recipe            "swift::container-server", "Installs the swift container serve
 end
 
 depends "osops-utils"
-#depends "dsh"
-
+depends "dsh"
+depends "xfs"
 
 # depends "apt"
 # depends "openssh"

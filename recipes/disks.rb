@@ -18,7 +18,7 @@
 
 include_recipe "osops-utils"
 
-%q(xfsprogs parted util-linux).each do |pkg|
+%w(xfsprogs parted util-linux).each do |pkg|
   package pkg do
     action :upgrade
   end
