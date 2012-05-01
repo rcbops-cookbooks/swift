@@ -3,6 +3,19 @@ default["swift"]["authmode"] = :swauth
 default["swift"]["audit_hour"] = "5"
 default["swift"]["disk_enum_expr"] = "node[:block_device]"
 
+default["swift"]["service_tenant_name"] = "service"
+default["swift"]["service_user"] = "swift"
+default["swift"]["service_pass"] = "tYPvpd5F"
+default["swift"]["service_role"] = "admin"
+
+default["swift"]["api"]["bind_address"] = "0.0.0.0"
+default["swift"]["api"]["port"] = "80"
+default["swift"]["api"]["ip_address"] = node["ipaddress"]
+default["swift"]["api"]["protocol"] = "http"
+default["swift"]["api"]["adminURL"] = "#{node["swift"]["api"]["protocol"]}://#{node["swift"]["api"]["ip_address"]}:#{node["swift"]["api"]["port"]}"
+default["swift"]["api"]["internalURL"] = node["swift"]["api"]["adminURL"]
+default["swift"]["api"]["publicURL"] = node["swift"]["api"]["adminURL"]
+
 # disk_test_filter is an array of predicates to test against disks to
 # determine if a disk should be formatted and configured for swift.
 # Each predicate is evaluated in turn, and a false from the predicate
