@@ -17,8 +17,6 @@
 # limitations under the License.
 #
 
-# include_recipe "dsh"
-
 template "/etc/swift/drive-audit.conf" do
   source "drive-audit.conf.erb"
   owner "swift"
@@ -40,7 +38,7 @@ directory "/var/cache/swift" do
   mode "0700"
 end
 
-# dsh_group "swift-storage" do
-#   user "swift"
-#   network "swift"
-# end
+dsh_group "swift-storage" do
+  user "swift"
+  network "swift"
+end

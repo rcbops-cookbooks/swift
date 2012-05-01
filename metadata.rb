@@ -14,7 +14,6 @@ end
 
 depends "osops-utils"
 depends "dsh"
-depends "xfs"
 
 # depends "apt"
 # depends "openssh"
