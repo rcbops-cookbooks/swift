@@ -77,7 +77,9 @@ use = egg:swift#proxy
 # account_autocreate = false
 ######
 allow_account_management = <%= account_management %>
-
+<% if @authmode == "keystone" -%>
+account_autocreate = true
+<% end %>
 
 [filter:swauth]
 use = egg:swauth#swauth

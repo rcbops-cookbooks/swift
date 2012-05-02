@@ -50,7 +50,7 @@ if node["swift"]["authmode"] == "keystone"
     result = node if result.length <= 0
   end
 
-  keystone = result["keystone"].select { |k,v| ["admin_port", "admin_token"].include?(k) }
+  keystone = Hash[result["keystone"].select { |k,v| ["admin_port", "admin_token"].include?(k) }]
 
   # FIXME: this should really return ip and port
   keystone["api_ipaddress"]=IPManagement.get_access_ip_for_role("keystone", "swift-lb", node)
@@ -103,7 +103,7 @@ if node["swift"]["authmode"] == "keystone"
     api_ver "/v2.0"
     auth_token keystone["admin_token"]
     service_name "swift"
-    service_type "storage"
+    service_type "object-store"
     service_description "Swift Object Storage Service"
     action :create_service
   end
@@ -115,7 +115,7 @@ if node["swift"]["authmode"] == "keystone"
     auth_protocol "http"
     api_ver "/v2.0"
     auth_token keystone["admin_token"]
-    service_type "storage"
+    service_type "object-store"
     endpoint_region "RegionOne"
     endpoint_adminurl node["swift"]["api"]["adminURL"]
     endpoint_internalurl node["swift"]["api"]["internalURL"]
