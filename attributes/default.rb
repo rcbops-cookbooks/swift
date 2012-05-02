@@ -12,7 +12,7 @@ default["swift"]["api"]["bind_address"] = "0.0.0.0"
 default["swift"]["api"]["port"] = "80"
 default["swift"]["api"]["ip_address"] = node["ipaddress"]
 default["swift"]["api"]["protocol"] = "http"
-default["swift"]["api"]["adminURL"] = "#{node["swift"]["api"]["protocol"]}://#{node["swift"]["api"]["ip_address"]}:#{node["swift"]["api"]["port"]}"
+default["swift"]["api"]["adminURL"] = "#{node["swift"]["api"]["protocol"]}://#{node["swift"]["api"]["ip_address"]}:#{node["swift"]["api"]["port"]}/v1/AUTH_%(tenant_id)s"
 default["swift"]["api"]["internalURL"] = node["swift"]["api"]["adminURL"]
 default["swift"]["api"]["publicURL"] = node["swift"]["api"]["adminURL"]
 
