@@ -21,13 +21,26 @@ include_recipe "swift::common"
 include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
-package "swift-container" do
+if platform?(%w{fedora})
+  # fedora, maybe other rhel-ish dists
+  swift_container_package = "openstack-swift-container"
+  swift_force_options = ""
+  swift_container_service_prefix = "openstack-"
+else
+  # debian, ubuntu, other debian-ish
+  swift_container_package = "swift-container"
+  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  swift_container_service_prefix = ""
+end
+
+package swift_container_package do
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  options swift_force_options
 end
 
 %W(swift-container swift-container-auditor swift-container-replicator swift-container-updater).each do |svc|
   service svc do
+    service_name "#{swift_container_service_prefix}#{svc}"
     supports :status => true, :restart => true
     action :enable
     only_if "[ -e /etc/swift/container-server.conf ] && [ -e /etc/swift/container.ring.gz ]"

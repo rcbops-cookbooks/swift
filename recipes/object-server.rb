@@ -21,13 +21,26 @@ include_recipe "swift::common"
 include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
-package "swift-object" do
+if platform?(%w{fedora})
+  # fedora, maybe other rhel-ish dists
+  swift_object_package = "openstack-swift-object"
+  swift_force_options = ""
+  swift_object_service_prefix = "openstack-"
+else
+  # debian, ubuntu, other debian-ish
+  swift_object_package = "swift-object"
+  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  swift_object_service_prefix = ""
+end
+
+package swift_object_package do
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  options swift_force_options
 end
 
 %W(swift-object swift-object-replicator swift-object-auditor swift-object-updater).each do |svc|
   service svc do
+    service_name "#{swift_object_service_prefix}#{svc}"
     supports :status => true, :restart => true
     action :enable
     only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"

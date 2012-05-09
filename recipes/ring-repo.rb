@@ -21,7 +21,17 @@
 # for purposes of ring synchronization
 #
 
-%w(git git-daemon-sysvinit).each do |pkg|
+if platform?(%w{fedora})
+  # fedora, maybe other rhel-ish dists
+  git_packages = %w{git git-daemon}
+  git_dir = "/var/lib/git"
+else
+  # debian, ubuntu, other debian-ish
+  git_packages = %w{git git-daemon-sysvinit}
+  git_dir = "/var/cache/git"
+end
+
+git_packages.each do |pkg|
   package pkg do
     action :upgrade
   end
@@ -30,39 +40,45 @@ end
 execute "create empty git repo" do
   cwd "/tmp"
   umask 022
-  command "mkdir $$; cd $$; git init; echo \"backups\" \> .gitignore; git add .gitignore; git commit -m 'initial commit' --author='chef <chef@openstack>'; git push file:///var/cache/git/rings master"
+  command "mkdir $$; cd $$; git init; echo \"backups\" \> .gitignore; git add .gitignore; git commit -m 'initial commit' --author='chef <chef@openstack>'; git push file:///#{git_dir}/rings master"
   action :nothing
 end
 
-execute "initialize git repo" do
-  cwd "/var/cache/git/rings"
-  umask 022
-  user "swift"
-  command "git init --bare && touch git-daemon-export-ok"
-  creates "/var/cache/git/rings/.git"
-  action :nothing
-  notifies :run, resources(:execute => "create empty git repo"), :immediately
-end
-
-directory "/var/cache/git/rings" do
+directory "git-directory" do
+  path "#{git_dir}/rings"
   owner "swift"
   group "swift"
   mode "0755"
+  recursive true
   action :create
-  notifies :run, resources(:execute => "initialize git repo"), :immediately
 end
 
-service "git-daemon" do
-  action [ :enable, :start ]
+execute "initialize git repo" do
+  cwd "#{git_dir}/rings"
+  umask 022
+  user "swift"
+  command "git init --bare && touch git-daemon-export-ok"
+  creates "#{git_dir}/rings/config"
+  action :run
+  notifies :run, resources(:execute => "create empty git repo"), :immediately
 end
 
-cookbook_file "/etc/default/git-daemon" do
-  owner "root"
-  group "root"
-  mode "644"
-  source "git-daemon.default"
-  action :create
-  notifies :restart, resources(:service => "git-daemon"), :immediately
+# runs of of xinetd in redhat.  Perhaps it should run out of xinetd in
+# debian/ubuntu too...
+
+if platform?(%w{ubuntu})
+  service "git-daemon" do
+    action [ :enable, :start ]
+  end
+
+  cookbook_file "/etc/default/git-daemon" do
+    owner "root"
+    group "root"
+    mode "644"
+    source "git-daemon.default"
+    action :create
+    notifies :restart, resources(:service => "git-daemon"), :immediately
+  end
 end
 
 directory "/etc/swift/ring-workspace" do

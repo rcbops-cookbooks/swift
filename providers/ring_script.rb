@@ -36,9 +36,7 @@ def generate_script
         # Chef::Log.info("#{ which.capitalize } Ring data: #{ring_data[:raw][which]}")
         ring_data[:parsed][which] = parse_ring_output(ring_data[:raw][which])
 
-        node["swift"]["state"] ||= {}
-        node["swift"]["state"]["ring"] ||= {}
-        node["swift"]["state"]["ring"][which] = ring_data[:parsed][which]
+        node.set["swift"]["state"]["ring"][which] = ring_data[:parsed][which]
       end
     else
       Chef::Log.info("#{which.capitalize} ring builder files do not exist")
@@ -56,11 +54,15 @@ def generate_script
       end
     end
 
-    # Chef::Log.info("#{PP.pp(ring_data[:in_use][which],dump='')}")
+    Chef::Log.info("#{which.capitalize} Ring - In use: #{PP.pp(ring_data[:in_use][which],dump='')}")
 
     # figure out what's present in the cluster
     disk_data[which] = {}
-    disk_state, something, whatever = Chef::Search::Query.new.search(:node,"chef_environment:#{node.chef_environment} AND roles:swift-#{which}-server")
+    disk_state,_,_ = Chef::Search::Query.new.search(:node,"chef_environment:#{node.chef_environment} AND roles:swift-#{which}-server")
+
+    # for a running track of available disks
+    disk_data[:available] ||= {}
+    disk_data[:available][which] ||= {}
 
     disk_state.each do |swiftnode|
       if swiftnode[:swift][:state] and swiftnode[:swift][:state][:devs]
@@ -77,9 +79,6 @@ def generate_script
             raise "Node #{swiftnode[:hostname]} has no zone assigned"
           end
 
-          # keep a running track of available disks
-          disk_data[:available] ||= {}
-          disk_data[:available][which] ||= {}
           disk_data[:available][which][v[:mountpoint]] = v[:ip]
 
           if not v[:mounted]
@@ -88,6 +87,7 @@ def generate_script
         end
       end
     end
+    Chef::Log.info("#{which.capitalize} Ring - Avail:  #{PP.pp(disk_data[:available][which],dump='')}")
   end
 
   # Have the raw data, now bump it together and drop the script
@@ -115,7 +115,7 @@ def generate_script
       disk_data[which][ip].keys.sort.each do |k|
         v = disk_data[which][ip][k]
         s << "#  " +  v.keys.sort.select{|x| ["ip", "device", "uuid"].include?(x)}.collect{|x| v[x] }.join(", ")
-        if new_disks[which].has_key?(v["uuid"])
+        if new_disks[which].has_key?(v["mountpoint"])
           s << " (NEW!)"
         end
         s << "\n"
@@ -134,7 +134,7 @@ def generate_script
     disk_data[which].keys.sort.each do |ip|
       disk_data[which][ip].keys.sort.each do |uuid|
         v = disk_data[which][ip][uuid]
-        if new_disks[which].has_key?(uuid)
+        if new_disks[which].has_key?(v['mountpoint'])
           s << "swift-ring-builder #{ring_path}/#{which}.builder add z#{v['zone']}-#{v['ip']}:#{ports[which]}/#{v['mountpoint']} #{v['size']}\n"
           must_rebalance = true
         end

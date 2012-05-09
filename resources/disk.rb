@@ -36,11 +36,12 @@ def initialize(*args)
   @action = :ensure_exists
 end
 
-attribute :name,                  :kind_of => String
-attribute :size,                  :kind_of => Integer
-attribute :blocks,                :kind_of => Integer
-attribute :device,                :kind_of => String
-attribute :part,                  :kind_of => Array
-attribute :status,                :kind_of => Symbol
+attribute :name,   :kind_of => String
+attribute :size,   :kind_of => Integer
+attribute :blocks, :kind_of => Integer
+attribute :device, :kind_of => String
+attribute :part,   :kind_of => Array
+attribute :status, :kind_of => Symbol
+
 
 

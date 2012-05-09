@@ -21,13 +21,26 @@ include_recipe "swift::common"
 include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
-package "swift-account" do
+if platform?(%w{fedora})
+  # fedora, maybe other rhel-ish dists
+  swift_account_package = "openstack-swift-account"
+  swift_force_options = ""
+  swift_account_service_prefix = "openstack-"
+else
+  # debian, ubuntu, other debian-ish
+  swift_account_package = "swift-account"
+  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  swift_account_service_prefix = ""
+end
+
+package swift_account_package do
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  options swift_force_options
 end
 
 %W(swift-account swift-account-auditor swift-account-reaper swift-account-replicator).each do |svc|
   service svc do
+    service_name "#{swift_account_service_prefix}#{svc}"
     supports :status => true, :restart => true
     action :enable
     only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"

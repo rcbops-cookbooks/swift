@@ -18,6 +18,19 @@
 #
 include_recipe "osops-utils"
 
+# force base package install to get groups
+if platform?(%w{fedora})
+  # fedora, maybe other rhel-ish dists
+  swift_package = "openstack-swift"
+else
+  # debian, ubuntu, other debian-ish
+  swift_package = "swift"
+end
+
+package swift_package do
+  action :upgrade
+end
+
 directory "/etc/swift" do
   action :create
   owner "swift"

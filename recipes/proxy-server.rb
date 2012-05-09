@@ -21,9 +21,21 @@ include_recipe "swift::common"
 include_recipe "swift::memcached"
 include_recipe "osops-utils"
 
-package "swift-proxy" do
+if platform?(%w{fedora})
+  # fedora, maybe other rhel-ish dists
+  swift_proxy_package = "openstack-swift-proxy"
+  swift_force_options = ""
+  swift_proxy_service = "openstack-swift-proxy"
+else
+  # debian, ubuntu, other debian-ish
+  swift_proxy_package = "swift-proxy"
+  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  swift_proxy_service = "swift-proxy"
+end
+
+package swift_proxy_package do
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  options swift_force_options
 end
 
 package "python-swauth" do
@@ -37,6 +49,7 @@ package "python-keystone" do
 end
 
 service "swift-proxy" do
+  service_name swift_proxy_service
   supports :status => true, :restart => true
   action :enable
   only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"

@@ -143,6 +143,7 @@ action :ensure_exists do
   req = @new_resource.part
   cur = @current.part
   dev_name = @new_resource.name
+  update = false
 
   recreate, delete_existing  = false
 
@@ -178,14 +179,13 @@ action :ensure_exists do
       end
 
       current_block += cur[idx][:size]
-      idx+=1
       Chef::Log.info("partition #{idx} #{(recreate ? 'differs' : 'is same')}: #{cur_size}/#{req_size}")
+      idx+=1
     }
   end
 
   if !recreate
     Chef::Log.info("partition table matches - not recreating")
-    new_resource.updated_by_last_action(false)
   else
     ### make sure to ensure that there are no mounted
     ### filesystems on the device
@@ -228,8 +228,31 @@ action :ensure_exists do
         command s
       end
       idx+=1
+
     }
-    new_resource.updated_by_last_action(true)
+    update = true
   end
+
+  # walk through the partitions and enforce disk format
+  idx=1
+  req.each do |params|
+    device = "#{dev_name}#{idx}"
+    Chef::Log.info("Checking #{device}")
+
+    if ::File.exist?(device)
+      # FIXME: check the format on the file system.  This should be
+      # handled by a disk format provider.  Maybe the xfs/btrfs/etc
+      # providers?
+      Chef::Log.info("Testing file system on #{device} for type #{params[:type]}")
+
+      if params[:type] == "xfs"
+        if not system("xfs_admin -l #{device}")
+          Chef::ShellOut.new("mkfs.xfs -f -i size=512 #{device}").run_command
+          update = true
+        end
+      end
+    end
+  end
+  new_resource.updated_by_last_action(update)
 end
 
