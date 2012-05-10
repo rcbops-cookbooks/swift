@@ -17,21 +17,40 @@
 # limitations under the License.
 #
 
+if platform?(%w{fedora})
+  # fedora, maybe other rhel-ish dists
+  swift_force_options = ""
+  rsync_service_name = "rsync"
+  rsync_package = "rsync"
+else
+  # debian, ubuntu, other debian-ish
+  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  rsync_service_name = "rsync"
+  rsync_package = "rsyncd"
+end
+
 package "rsyncd" do
+  package_name = rsync_package
   action :upgrade
-  options "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
+  options swift_force_options
 end
 
+if platform?(%w{fedora}) # rsync package is broken: missing the systemd stuff
+  cookbook_file "/etc/systemd/system/rsync.service" do
+    owner "root"
+    group "root"
+    mode "0644"
+    source "rsync.service"
+    action :create
+  end
+end
+
+# FIXME: chicken and egg
 service "rsync" do
-  supports :status => true, :restart => true
-  action :enable
-end
-
-execute "enable rsync" do
-  command "sed -i 's/RSYNC_ENABLE=false/RSYNC_ENABLE=true/' /etc/default/rsync"
-  only_if "grep -q 'RSYNC_ENABLE=false' /etc/default/rsync"
-  notifies :restart, resources(:service => "rsync"), :immediately
-  action :run
+  service_name rsync_service_name
+  supports :status => false, :restart => true
+  action [ :enable, :start ]
+  not_if "[ ! -f /etc/rsyncd.conf ]"
 end
 
 template "/etc/rsyncd.conf" do
@@ -39,4 +58,17 @@ template "/etc/rsyncd.conf" do
   mode "0644"
   notifies :restart, resources(:service => "rsync"), :immediately
 end
+
+if platform?(%w{fedora})
+else
+  execute "enable rsync" do
+    command "sed -i 's/RSYNC_ENABLE=false/RSYNC_ENABLE=true/' /etc/default/rsync"
+    only_if "grep -q 'RSYNC_ENABLE=false' /etc/default/rsync"
+    notifies :restart, resources(:service => "rsync"), :immediately
+    action :run
+    not_if { use_xinetd }
+  end
+
+end
+
 

@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "swift::rsync"
+
 template "/etc/swift/drive-audit.conf" do
   source "drive-audit.conf.erb"
   owner "swift"
@@ -42,3 +44,4 @@ dsh_group "swift-storage" do
   user "swift"
   network "swift"
 end
+
