@@ -97,12 +97,44 @@ end
 
 # FIXME: node attribute - partition power
 [ "account", "container", "object" ].each do |ring_type|
+  execute "add #{ring_type}.builder" do
+    cwd "/etc/swift/ring-workspace/rings"
+    command "git add #{ring_type}.builder && git commit -m 'initial ring builders' --author='chef <chef@openstack>'"
+    user "swift"
+    action :nothing
+  end
+
   execute "create #{ring_type} builder" do
     cwd "/etc/swift/ring-workspace/rings"
     command "swift-ring-builder #{ring_type}.builder create 18 3 1"
     user "swift"
     creates "/etc/swift/ring-workspace/rings/#{ring_type}.builder"
+    notifies :run, "execute[add #{ring_type}.builder]", :immediate
   end
+end
+
+bash "rebuild-rings" do
+  action :nothing
+  cwd "/etc/swift/ring-workspace/rings"
+  user "swift"
+  code <<-EOF
+    set -e
+    set -x
+
+    # Should this be done?
+    git reset --hard
+    git clean -df
+
+    ../generate-rings.sh
+
+    git add *builder *gz
+    git commit -m "Autobuild of rings on $(date +%Y%m%d) by Chef" --author="chef <chef@openstack>"
+
+    # should dsh a ring pull at this point
+    git push
+  EOF
+
+  only_if { node["swift"]["auto_rebuild_rings"] }
 end
 
 swift_ring_script "/etc/swift/ring-workspace/generate-rings.sh" do
@@ -111,5 +143,6 @@ swift_ring_script "/etc/swift/ring-workspace/generate-rings.sh" do
   mode "0700"
   ring_path "/etc/swift/ring-workspace/rings"
   action :ensure_exists
+  notifies :run, "bash[rebuild-rings]", :immediate
 end
 

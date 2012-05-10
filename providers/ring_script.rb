@@ -21,6 +21,7 @@ require "pp"
 def generate_script
   # need to load and parse the existing rings.
   ports = { "object" => "6000", "container" => "6001", "account" => "6002" }
+  must_rebalance = false
 
   ring_path = @new_resource.ring_path
   ring_data = { :raw => {}, :parsed => {}, :in_use => {} }
@@ -33,13 +34,13 @@ def generate_script
     if ::File.exist?("#{ring_path}/#{which}.builder")
       IO.popen("swift-ring-builder #{ring_path}/#{which}.builder") do |pipe|
         ring_data[:raw][which] = pipe.readlines
-        # Chef::Log.info("#{ which.capitalize } Ring data: #{ring_data[:raw][which]}")
+        # Chef::Log.debug("#{ which.capitalize } Ring data: #{ring_data[:raw][which]}")
         ring_data[:parsed][which] = parse_ring_output(ring_data[:raw][which])
 
         node.set["swift"]["state"]["ring"][which] = ring_data[:parsed][which]
       end
     else
-      Chef::Log.info("#{which.capitalize} ring builder files do not exist")
+      Chef::Log.info("#{which.capitalize} ring builder files do not exist!")
     end
 
     # collect all the ring data, and note what disks are in use.  All I really
@@ -54,7 +55,7 @@ def generate_script
       end
     end
 
-    Chef::Log.info("#{which.capitalize} Ring - In use: #{PP.pp(ring_data[:in_use][which],dump='')}")
+    Chef::Log.debug("#{which.capitalize} Ring - In use: #{PP.pp(ring_data[:in_use][which],dump='')}")
 
     # figure out what's present in the cluster
     disk_data[which] = {}
@@ -87,7 +88,7 @@ def generate_script
         end
       end
     end
-    Chef::Log.info("#{which.capitalize} Ring - Avail:  #{PP.pp(disk_data[:available][which],dump='')}")
+    Chef::Log.debug("#{which.capitalize} Ring - Avail:  #{PP.pp(disk_data[:available][which],dump='')}")
   end
 
   # Have the raw data, now bump it together and drop the script
@@ -95,9 +96,9 @@ def generate_script
   s = "#!/bin/bash\n\n# This script is automatically generated.\n"
   s << "# Running it will likely blow up your system if you don't review it carefully.\n"
   s << "# You have been warned.\n\n"
-  s << "exit 0\n\n"
+  s << "exit 0\n\n" unless node["swift"]["auto_rebuild_rings"]
 
-  # Chef::Log.info("#{PP.pp(disk_data, dump='')}")
+  # Chef::Log.debug("#{PP.pp(disk_data, dump='')}")
 
   new_disks = {}
   missing_disks = {}
@@ -108,6 +109,9 @@ def generate_script
 
     # find all in-ring disks that are not in the cluster
     missing_disks[which] = ring_data[:in_use][which].reject{ |k,v| disk_data[:available][which].has_key?(k) }
+
+    Chef::Log.debug("#{which.capitalize} Ring - Missing:  #{PP.pp(missing_disks[which],dump='')}")
+    Chef::Log.debug("#{which.capitalize} Ring - New:  #{PP.pp(new_disks[which],dump='')}")
 
     s << "\n# -- #{which.capitalize} Servers --\n\n"
     disk_data[which].keys.sort.each do |ip|
@@ -126,8 +130,6 @@ def generate_script
     # then we need to add them to the ring.  For those that *were* in the
     # ring, and are no longer in the ring, we need to delete those.
 
-    must_rebalance = false
-
     s << "\n"
 
     # add the new disks
@@ -142,11 +144,12 @@ def generate_script
     end
 
     # remove the disks -- sort to ensure consistent order
-    missing_disks[which].keys.sort.each do |uuid|
-      diskinfo = ring_data[:parsed][which][:hosts].select{|k,v| v.has_key?(uuid)}[0][1][uuid]
+    missing_disks[which].keys.sort.each do |mountpoint|
+      diskinfo=ring_data[:parsed][which][:hosts].select{|k,v| v.has_key?(mountpoint)}.collect{|_,v| v[mountpoint]}[0]
+      Chef::Log.debug("Missing diskinfo: #{PP.pp(diskinfo,dump='')}")
       description = Hash[diskinfo.select{|k,v| [:zone, :ip, :device].include?(k)}].collect{|k,v| "#{k}: #{v}" }.join(", ")
       s << "# #{description}\n"
-      s << "swift-ring-builder #{ring_path}/#{which}.builder remove d#{missing_disks[which][uuid]}\n"
+      s << "swift-ring-builder #{ring_path}/#{which}.builder remove d#{missing_disks[which][mountpoint]}\n"
       must_rebalance = true
     end
 
@@ -158,7 +161,7 @@ def generate_script
       s << "# #{which.capitalize} ring has no outstanding changes!\n\n"
     end
   end
-  s
+  [ s, must_rebalance ]
 end
 
 # Parse the raw output of swift-ring-builder
@@ -201,9 +204,9 @@ def parse_ring_output(ring_data)
 end
 
 action :ensure_exists do
-  Chef::Log.info("Ensuring #{new_resource.name}")
+  Chef::Log.debug("Ensuring #{new_resource.name}")
   new_resource.updated_by_last_action(false)
-  s = generate_script
+  s,must_update = generate_script
 
   script_file = File new_resource.name do
     owner new_resource.owner
@@ -213,7 +216,5 @@ action :ensure_exists do
   end
 
   script_file.run_action(:create)
-  if script_file.updated_by_last_action?
-    new_resource.updated_by_last_action(true)
-  end
+  new_resource.updated_by_last_action(must_update)
 end

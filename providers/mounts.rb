@@ -37,6 +37,7 @@ action :ensure_exists do
     info["uuid"] = `blkid /dev/#{device} -s UUID -o value`.strip
     info["mountpoint"] = info["uuid"].split("-").join("")
     info["mounted"] = system("mount | grep '#{path}/#{info["mountpoint"]}\'")
+    info["size"] = `sfdisk -s /dev/#{device}`.to_i / 1024
 
     next if (info["uuid"] =~ /^[0-9A-Fa-f\-]{10,}+$/).nil?
 
