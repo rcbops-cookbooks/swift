@@ -33,7 +33,6 @@ if platform?(%w{fedora})
 else
   # debian, ubuntu, other debian-ish
   swift_object_package = "swift-object"
-  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
   service_prefix = ""
   service_suffix = ""
 
@@ -58,7 +57,7 @@ end
     variables({ :description => "OpenStack Object Storage (swift) - " +
                 "Object #{svc.capitalize}",
                 :user => "swift",
-                :exec => "/usr/bin/swift-object-${svc} " +
+                :exec => "/usr/bin/swift-object-#{svc} " +
                 "/etc/swift/object-server.conf"
               })
     only_if { platform?(%w{fedora})}
@@ -70,7 +69,7 @@ end
     service_name "#{service_prefix}#{svc}#{service_suffix}"
     provider service_provider
     supports :status => true, :restart => true
-    action :enable
+    action [:enable, :start]
     only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
   end
 end

@@ -57,7 +57,7 @@ end
     variables({ :description => "OpenStack Object Storage (swift) - " +
                 "Container #{svc.capitalize}",
                 :user => "swift",
-                :exec => "/usr/bin/swift-container-${svc} " +
+                :exec => "/usr/bin/swift-container-#{svc} " +
                 "/etc/swift/container-server.conf"
               })
     only_if { platform?(%w{fedora}) }
@@ -70,7 +70,7 @@ end
     service_name "#{service_prefix}#{svc}#{service_suffix}"
     provider service_provider
     supports :status => true, :restart => true
-    action :enable
+    action [:enable, :start]
     only_if "[ -e /etc/swift/container-server.conf ] && [ -e /etc/swift/container.ring.gz ]"
   end
 end
