@@ -17,6 +17,9 @@
 # limitations under the License.
 #
 
+
+require "pp"
+
 if platform?(%w{fedora})
   # fedora, maybe other rhel-ish dists
   swift_force_options = ""
