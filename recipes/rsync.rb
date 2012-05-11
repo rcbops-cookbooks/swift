@@ -35,7 +35,9 @@ package "rsyncd" do
   options swift_force_options
 end
 
-if platform?(%w{fedora}) # rsync package is broken: missing the systemd stuff
+
+# epel/f-17 broken: https://bugzilla.redhat.com/show_bug.cgi?id=737710
+if platform?(%w{fedora})
   cookbook_file "/etc/systemd/system/rsync.service" do
     owner "root"
     group "root"
