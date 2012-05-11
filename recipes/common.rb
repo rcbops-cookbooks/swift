@@ -66,7 +66,7 @@ template "/etc/swift/pull-rings.sh" do
   group "swift"
   mode "0700"
   variables({
-              :builder_ip => IPManagement.get_ips_for_role("swift-management-server","swift",node)
+              :builder_ip => IPManagement.get_ips_for_role("swift-management-server","swift",node)[0]
             })
   only_if "/usr/bin/id swift"
 end
