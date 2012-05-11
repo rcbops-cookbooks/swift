@@ -10,7 +10,7 @@ default["swift"]["service_pass"] = "tYPvpd5F"
 default["swift"]["service_role"] = "admin"
 
 default["swift"]["api"]["bind_address"] = "0.0.0.0"
-default["swift"]["api"]["port"] = "80"
+default["swift"]["api"]["port"] = "8080"
 default["swift"]["api"]["ip_address"] = node["ipaddress"]
 default["swift"]["api"]["protocol"] = "http"
 default["swift"]["api"]["adminURL"] = "#{node["swift"]["api"]["protocol"]}://#{node["swift"]["api"]["ip_address"]}:#{node["swift"]["api"]["port"]}/v1/AUTH_%(tenant_id)s"
