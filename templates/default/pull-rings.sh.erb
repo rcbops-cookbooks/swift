@@ -15,7 +15,7 @@ git pull
 [ -e /etc/swift/rings ] && chown -R swift: /etc/swift/rings
 
 for d in object account container; do
-    if [ "$(md5sum ${d}.ring.gz | cut -f1 -d' ')" != "$(md5sum ../${d}.ring.gz | cut -f1 -d' ')" ]; then
+    if [ ! -e ../${d}.ring.gz ] || [ "$(md5sum ${d}.ring.gz | cut -f1 -d' ')" != "$(md5sum ../${d}.ring.gz | cut -f1 -d' ')" ]; then
 	cp ${d}.ring.gz ../${d}.ring.new
 	chown swift: ../${d}.ring.new
 	mv ../${d}.ring.new ../${d}.ring.gz

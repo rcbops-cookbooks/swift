@@ -24,23 +24,51 @@ include_recipe "swift::disks"
 if platform?(%w{fedora})
   # fedora, maybe other rhel-ish dists
   swift_container_package = "openstack-swift-container"
-  swift_force_options = ""
-  swift_container_service_prefix = "openstack-"
+  service_prefix = "openstack-"
+  service_suffix = ".service"
+
+  # global
+  service_provider = Chef::Provider::Service::Systemd
+  package_override_options = ""
 else
   # debian, ubuntu, other debian-ish
   swift_container_package = "swift-container"
-  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-  swift_container_service_prefix = ""
+  service_prefix = ""
+  service_suffix = ""
+
+  # global
+  service_provider = nil
+  package_override_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
 end
 
 package swift_container_package do
   action :upgrade
-  options swift_force_options
+  options package_override_options
 end
 
-%W(swift-container swift-container-auditor swift-container-replicator swift-container-updater).each do |svc|
+# epel/f-17 missing init scripts for the non-major services.
+# https://bugzilla.redhat.com/show_bug.cgi?id=807170
+%w{auditor updater replicator}.each do |svc|
+  template "/etc/systemd/system/openstack-swift-container-#{svc}.service" do
+    owner "root"
+    group "root"
+    mode "0644"
+    source "simple-systemd-config.erb"
+    variables({ :description => "OpenStack Object Storage (swift) - " +
+                "Container #{svc.capitalize}",
+                :user => "swift",
+                :exec => "/usr/bin/swift-container-${svc} " +
+                "/etc/swift/container-server.conf"
+              })
+    only_if { platform?(%w{fedora}) }
+  end
+end
+
+
+%w{swift-container swift-container-auditor swift-container-replicator swift-container-updater}.each do |svc|
   service svc do
-    service_name "#{swift_container_service_prefix}#{svc}"
+    service_name "#{service_prefix}#{svc}#{service_suffix}"
+    provider service_provider
     supports :status => true, :restart => true
     action :enable
     only_if "[ -e /etc/swift/container-server.conf ] && [ -e /etc/swift/container.ring.gz ]"

@@ -25,22 +25,50 @@ if platform?(%w{fedora})
   # fedora, maybe other rhel-ish dists
   swift_account_package = "openstack-swift-account"
   swift_force_options = ""
-  swift_account_service_prefix = "openstack-"
+  service_prefix = "openstack-"
+  service_suffix = ".service"
+
+  # global
+  service_provider = Chef::Provider::Service::Systemd
+  package_override_options = ""
 else
   # debian, ubuntu, other debian-ish
   swift_account_package = "swift-account"
-  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-  swift_account_service_prefix = ""
+  service_prefix = ""
+  service_prefix = ""
+
+  # global
+  service_provider = nil
+  package_override_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
 end
 
 package swift_account_package do
   action :upgrade
-  options swift_force_options
+  options package_override_options
 end
 
-%W(swift-account swift-account-auditor swift-account-reaper swift-account-replicator).each do |svc|
+# epel/f-17 missing init scripts for the non-major services.
+# https://bugzilla.redhat.com/show_bug.cgi?id=807170
+%w{auditor reaper replicator}.each do |svc|
+  template "/etc/systemd/system/openstack-swift-account-#{svc}.service" do
+    owner "root"
+    group "root"
+    mode "0644"
+    source "simple-systemd-config.erb"
+    variables({ :description => "OpenStack Object Storage (swift) - " +
+                "Account #{svc.capitalize}",
+                :user => "swift",
+                :exec => "/usr/bin/swift-account-${svc} " +
+                "/etc/swift/account-server.conf"
+              })
+    only_if { platform?(%w{fedora}) }
+  end
+end
+
+%w{swift-account swift-account-auditor swift-account-reaper swift-account-replicator}.each do |svc|
   service svc do
-    service_name "#{swift_account_service_prefix}#{svc}"
+    service_name "#{service_prefix}#{svc}#{service_suffix}"
+    provider service_provider
     supports :status => true, :restart => true
     action :enable
     only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"

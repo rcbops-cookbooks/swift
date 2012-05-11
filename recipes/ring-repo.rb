@@ -25,10 +25,14 @@ if platform?(%w{fedora})
   # fedora, maybe other rhel-ish dists
   git_packages = %w{git git-daemon}
   git_dir = "/var/lib/git"
+  daemon_service="git"
+  service_provider=:systemd
 else
   # debian, ubuntu, other debian-ish
   git_packages = %w{git git-daemon-sysvinit}
   git_dir = "/var/cache/git"
+  daemon_service="git-daemon"
+  service_provider=:debian
 end
 
 git_packages.each do |pkg|
@@ -63,22 +67,35 @@ execute "initialize git repo" do
   notifies :run, resources(:execute => "create empty git repo"), :immediately
 end
 
-# runs of of xinetd in redhat.  Perhaps it should run out of xinetd in
-# debian/ubuntu too...
+# epel/f-17 missing systemd-ified inits
+# https://bugzilla.redhat.com/show_bug.cgi?id=737183
+template "/etc/systemd/system/git.service" do
+  owner "root"
+  group "root"
+  mode "0644"
+  source "simple-systemd-config.erb"
+  variables({ :description => "Git daemon service",
+              :user => "nobody",
+              :exec => "/usr/libexec/git-core/git-daemon " +
+              "--base-path=/var/lib/git --export-all --user-path=public_git" +
+              "--syslog --verbose"
+            })
+  only_if { platform?(%w{fedora}) }
+end
 
-if platform?(%w{ubuntu})
-  service "git-daemon" do
-    action [ :enable, :start ]
-  end
+service "git-daemon" do
+  service_name daemon_service
+  action [ :enable, :start ]
+end
 
-  cookbook_file "/etc/default/git-daemon" do
-    owner "root"
-    group "root"
-    mode "644"
-    source "git-daemon.default"
-    action :create
-    notifies :restart, resources(:service => "git-daemon"), :immediately
-  end
+cookbook_file "/etc/default/git-daemon" do
+  owner "root"
+  group "root"
+  mode "644"
+  source "git-daemon.default"
+  action :create
+  notifies :restart, resources(:service => "git-daemon"), :immediately
+  not_if { platform?(%w{fedora}) }
 end
 
 directory "/etc/swift/ring-workspace" do
@@ -90,7 +107,7 @@ end
 
 execute "checkout-rings" do
   cwd "/etc/swift/ring-workspace"
-  command "git clone file:///var/cache/git/rings"
+  command "git clone file://#{git_dir}/rings"
   user "swift"
   creates "/etc/swift/ring-workspace/rings"
 end

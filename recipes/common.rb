@@ -18,15 +18,14 @@
 #
 include_recipe "osops-utils"
 
-# force base package install to get groups
-if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
+
+# Bias the defaults toward ubuntu precise
+service_prefix = ""
+swift_package = "swift"
+
+if node["platform"] == "fedora" and node["platform_version"] == "17"
+  service_prefix = "openstack-"
   swift_package = "openstack-swift"
-  service_prefix = "openstack-"
-else
-  # debian, ubuntu, other debian-ish
-  swift_package = "swift"
-  service_prefix = "openstack-"
 end
 
 package swift_package do
