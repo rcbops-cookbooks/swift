@@ -22,9 +22,11 @@ include_recipe "osops-utils"
 if platform?(%w{fedora})
   # fedora, maybe other rhel-ish dists
   swift_package = "openstack-swift"
+  service_prefix = "openstack-"
 else
   # debian, ubuntu, other debian-ish
   swift_package = "swift"
+  service_prefix = "openstack-"
 end
 
 package swift_package do
@@ -66,7 +68,8 @@ template "/etc/swift/pull-rings.sh" do
   group "swift"
   mode "0700"
   variables({
-              :builder_ip => IPManagement.get_ips_for_role("swift-management-server","swift",node)[0]
+              :builder_ip => IPManagement.get_ips_for_role("swift-management-server","swift",node)[0],
+              :service_prefix => service_prefix
             })
   only_if "/usr/bin/id swift"
 end

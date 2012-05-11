@@ -20,8 +20,8 @@ for d in object account container; do
 	chown swift: ../${d}.ring.new
 	mv ../${d}.ring.new ../${d}.ring.gz
 
-	if [ -e /etc/init.d/swift-${d}-replicator ]; then
-	    /etc/init.d/swift-${d}-replicator restart
+	if [ -e /etc/swift/${d}-server.conf ]; then
+	    service <%= @service_prefix %>${d}-replicator restart
 	fi
     fi
 done
