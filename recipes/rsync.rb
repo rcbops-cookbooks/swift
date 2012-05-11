@@ -35,14 +35,13 @@ package "rsyncd" do
   options swift_force_options
 end
 
-if platform?(%w{fedora}) # rsync package is broken: missing the systemd stuff
-  cookbook_file "/etc/systemd/system/rsync.service" do
-    owner "root"
-    group "root"
-    mode "0644"
-    source "rsync.service"
-    action :create
-  end
+cookbook_file "/etc/systemd/system/rsync.service" do
+  owner "root"
+  group "root"
+  mode "0644"
+  source "rsync.service"
+  action :create
+  only_if platform?(%w{fedora})
 end
 
 # FIXME: chicken and egg

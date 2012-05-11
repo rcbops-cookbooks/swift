@@ -50,7 +50,7 @@ action :ensure_exists do
   end
 
   # make sure we have a "path"
-  Directory("#{path}") do
+  Directory(path) do
     group "swift"
     owner "swift"
     recursive true
@@ -106,7 +106,7 @@ action :ensure_exists do
 
     mount_path = "#{path}/#{info['mountpoint']}"
 
-    Directory("#{mount_path}") do
+    Directory(mount_path) do
       group "swift"
       owner "swift"
       recursive true
