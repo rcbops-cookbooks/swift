@@ -42,7 +42,7 @@ cookbook_file "/etc/systemd/system/rsync.service" do
   mode "0644"
   source "rsync.service"
   action :create
-  only_if platform?(%w{fedora})
+  only_if { platform?(%w{fedora}) }
 end
 
 # FIXME: chicken and egg
@@ -59,16 +59,12 @@ template "/etc/rsyncd.conf" do
   notifies :restart, resources(:service => "rsync"), :immediately
 end
 
-if platform?(%w{fedora})
-else
-  execute "enable rsync" do
-    command "sed -i 's/RSYNC_ENABLE=false/RSYNC_ENABLE=true/' /etc/default/rsync"
-    only_if "grep -q 'RSYNC_ENABLE=false' /etc/default/rsync"
-    notifies :restart, resources(:service => "rsync"), :immediately
-    action :run
-    not_if { use_xinetd }
-  end
-
+execute "enable rsync" do
+  command "sed -i 's/RSYNC_ENABLE=false/RSYNC_ENABLE=true/' /etc/default/rsync"
+  only_if "grep -q 'RSYNC_ENABLE=false' /etc/default/rsync"
+  notifies :restart, resources(:service => "rsync"), :immediately
+  action :run
+  not_if { platform?(%w{fedora}) }
 end
 
 
