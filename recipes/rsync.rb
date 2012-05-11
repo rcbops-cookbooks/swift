@@ -35,16 +35,14 @@ package "rsyncd" do
   options swift_force_options
 end
 
-
 # epel/f-17 broken: https://bugzilla.redhat.com/show_bug.cgi?id=737710
-if platform?(%w{fedora})
-  cookbook_file "/etc/systemd/system/rsync.service" do
-    owner "root"
-    group "root"
-    mode "0644"
-    source "rsync.service"
-    action :create
-  end
+cookbook_file "/etc/systemd/system/rsync.service" do
+  owner "root"
+  group "root"
+  mode "0644"
+  source "rsync.service"
+  action :create
+  only_if platform?(%w{fedora})
 end
 
 # FIXME: chicken and egg
