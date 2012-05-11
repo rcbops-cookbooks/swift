@@ -171,7 +171,10 @@ template "/etc/swift/proxy-server.conf" do
     variables("authmode" => node["swift"]["authmode"],
               "bind_host" => IPManagement.get_ip_for_net("swift-public", node),
               "bind_port" => node["swift"]["api"]["port"],
-              "memcache_servers" => IPManagement.get_ips_for_role("swift-proxy-server","swift-private", node)
+              "memcache_servers" => IPManagement.get_ips_for_role("swift-proxy-server","swift-private", node),
+              # FIXME: this is whack.  need port info for LB vips
+              "cluster_endpoint" => "http://" + IPManagement.get_access_ip_for_role("swift-proxy-server", "swift-public", node) + ":" +
+                                    node["swift"]["api"]["port"] + "/v1"
               )
   end
   notifies :restart, resources(:service => "swift-proxy"), :immediately

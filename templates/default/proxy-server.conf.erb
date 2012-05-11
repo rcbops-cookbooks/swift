@@ -89,6 +89,7 @@ use = egg:swauth#swauth
 <% if account_management -%>
 super_admin_key = <%= node[:swift][:authkey] %>
 <% end -%>
+default_swift_cluster = <%= cluster_endpoint %>
 
 [filter:healthcheck]
 use = egg:swift#healthcheck
