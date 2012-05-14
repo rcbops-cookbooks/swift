@@ -37,7 +37,7 @@ else
   service_suffix = ""
 
   # global
-  service_provider = nil
+  service_provider = Chef::Provider::Service::Upstart
   package_override_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
 end
 
@@ -68,7 +68,9 @@ end
   service svc do
     service_name "#{service_prefix}#{svc}#{service_suffix}"
     provider service_provider
-    supports :status => true, :restart => true
+    # the default ubuntu provider uses invoke-rc.d, which apparently is
+    # status-illy broken in ubuntu
+    supports :status => false, :restart => true
     action [:enable, :start]
     only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
   end

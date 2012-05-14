@@ -37,7 +37,7 @@ else
   service_suffix = ""
 
   # global
-  service_provider = nil
+  service_provider = Chef::Provider::Service::Upstart
   package_override_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
 end
 

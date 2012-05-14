@@ -26,13 +26,13 @@ if platform?(%w{fedora})
   git_packages = %w{git git-daemon}
   git_dir = "/var/lib/git"
   daemon_service="git"
-  service_provider=:systemd
+  service_provider = Chef::Provider::Service::Systemd
 else
   # debian, ubuntu, other debian-ish
   git_packages = %w{git git-daemon-sysvinit}
   git_dir = "/var/cache/git"
   daemon_service="git-daemon"
-  service_provider=:debian
+  service_provider = Chef::Provider::Service::Upstart
 end
 
 git_packages.each do |pkg|
