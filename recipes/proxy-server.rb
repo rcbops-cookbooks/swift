@@ -69,7 +69,7 @@ if node["swift"]["authmode"] == "keystone"
 
   if not Chef::Config[:solo]
     (result,*_), _, _ = Chef::Search::Query.new.search(:node, "roles:keystone AND chef_environment:#{node.chef_environment}")
-    result = node if result.length <= 0
+    result = node if (result == nil or result.length <= 0)
   end
 
   keystone = Hash[result["keystone"].select { |k,v| ["admin_port", "admin_token"].include?(k) }]
