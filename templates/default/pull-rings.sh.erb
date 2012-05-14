@@ -15,13 +15,15 @@ git pull
 [ -e /etc/swift/rings ] && chown -R swift: /etc/swift/rings
 
 for d in object account container; do
-    if [ ! -e ../${d}.ring.gz ] || [ "$(md5sum ${d}.ring.gz | cut -f1 -d' ')" != "$(md5sum ../${d}.ring.gz | cut -f1 -d' ')" ]; then
-	cp ${d}.ring.gz ../${d}.ring.new
-	chown swift: ../${d}.ring.new
-	mv ../${d}.ring.new ../${d}.ring.gz
+    if [ -e /etc/swift/rings/${d}.ring.gz ]; then
+	if [ ! -e ../${d}.ring.gz ] || [ "$(md5sum ${d}.ring.gz | cut -f1 -d' ')" != "$(md5sum ../${d}.ring.gz | cut -f1 -d' ')" ]; then
+	    cp ${d}.ring.gz ../${d}.ring.new
+	    chown swift: ../${d}.ring.new
+	    mv ../${d}.ring.new ../${d}.ring.gz
 
-	if [ -e /etc/swift/${d}-server.conf ]; then
-	    service <%= @service_prefix %>${d}-replicator restart
+	    if [ -e /etc/swift/${d}-server.conf ]; then
+		service <%= @service_prefix %>${d}-replicator restart
+	    fi
 	fi
     fi
 done
