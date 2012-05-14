@@ -47,7 +47,7 @@ default["swift"]["attributes"] = {
     }
   },
   "fedora" => {
-    "service_prefix" => "openstack-",
+    "service_prefix" => "openstack-swift-",
     "service_suffix" => ".service",
     "package_override_options" => "",
     "service_provider_class" => "Chef::Provider::Service::Systemd",

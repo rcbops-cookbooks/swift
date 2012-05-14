@@ -24,7 +24,7 @@ include_recipe "swift::disks"
 if platform?(%w{fedora})
   # fedora, maybe other rhel-ish dists
   swift_object_package = "openstack-swift-object"
-  service_prefix = "openstack-"
+  service_prefix = "openstack-swift-"
   service_suffix = ".service"
 
   # global
