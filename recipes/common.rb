@@ -28,11 +28,11 @@ node.save
 
 # Bias the defaults toward ubuntu precise
 service_prefix = "swift-"
-swift_package = "swift-"
+swift_package = "swift"
 
 if node["platform"] == "fedora" and node["platform_version"] == "17"
   service_prefix = "openstack-"
-  swift_package = "openstack-swift-"
+  swift_package = "openstack-swift"
 end
 
 package swift_package do
