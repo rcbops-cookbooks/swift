@@ -134,7 +134,7 @@ action :ensure_exists do
     dev_info[uuid]["mounted"] = system("mount | grep '#{path}/#{dev_info[uuid]["mountpoint"]}\'")
   end
 
-  if @new_resource.publish_attributes
+  if @new_resource.publish_attributes and dev_info != {}
     foo="node.set" + @new_resource.publish_attributes.split("/").collect{ |x| "[\"#{x}\"]" }.join("") + "=#{dev_info}"
     eval(foo)
   end
