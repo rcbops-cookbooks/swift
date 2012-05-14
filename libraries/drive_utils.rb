@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#
 #
 # Copyright 2012, Rackspace Hosting
 #

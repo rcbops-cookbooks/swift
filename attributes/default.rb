@@ -35,3 +35,27 @@ default["osops_networks"]["mapping"]["swift-lb"] = "public"
 default["osops_networks"]["mapping"]["swift-private"] = "swift"
 default["osops_networks"]["mapping"]["swift-public"] = "public"
 
+# Attributes for differences between distros.
+default["swift"]["attributes"] = {
+  "ubuntu" => {
+    "service_prefix" => "",
+    "service_suffix" => "",
+    "package_override_options" => "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'",
+    "service_provider_class" => "Chef::Provider::Service::Upstart",
+    "packages" => {
+      "account" => "swift-account"
+    }
+  },
+  "fedora" => {
+    "service_prefix" => "openstack-",
+    "service_suffix" => ".service",
+    "package_override_options" => "",
+    "service_provider_class" => "Chef::Provider::Service::Systemd",
+    "packages" => {
+      "account" => "openstack-swift-account"
+    }
+  },
+  "fedora-17" => {
+  }
+}
+

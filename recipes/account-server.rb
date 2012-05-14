@@ -21,30 +21,13 @@ include_recipe "swift::common"
 include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
-if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
-  swift_account_package = "openstack-swift-account"
-  swift_force_options = ""
-  service_prefix = "openstack-"
-  service_suffix = ".service"
+attrs = get_attrs("swift")
 
-  # global
-  service_provider = Chef::Provider::Service::Systemd
-  package_override_options = ""
-else
-  # debian, ubuntu, other debian-ish
-  swift_account_package = "swift-account"
-  service_prefix = ""
-  service_prefix = ""
-
-  # global
-  service_provider = Chef::Provider::Service::Upstart
-  package_override_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-end
-
-package swift_account_package do
-  action :upgrade
-  options package_override_options
+get_pkg("account").each do |pkg|
+  package pkg do
+    action :upgrade
+    options attrs["package_override_options"]
+  end
 end
 
 # epel/f-17 missing init scripts for the non-major services.
@@ -66,9 +49,10 @@ end
 end
 
 %w{swift-account swift-account-auditor swift-account-reaper swift-account-replicator}.each do |svc|
+  svc_name = get_svc(svc)
   service svc do
-    service_name "#{service_prefix}#{svc}#{service_suffix}"
-    provider service_provider
+    service_name svc_name
+    provider attrs["service_provider"]
     supports :status => true, :restart => true
     action [:enable, :start]
     only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"

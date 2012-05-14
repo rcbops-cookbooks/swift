@@ -18,12 +18,6 @@
 
 include_recipe "osops-utils"
 
-class Chef::Recipe
-  include DriveUtils
-end
-
-include_recipe "osops-utils"
-
 %w(xfsprogs parted util-linux).each do |pkg|
   package pkg do
     action :upgrade

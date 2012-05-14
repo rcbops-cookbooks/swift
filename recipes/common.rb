@@ -18,6 +18,13 @@
 #
 include_recipe "osops-utils"
 
+class Chef::Recipe
+  include DriveUtils
+  include Attributes
+end
+
+# make chef less stupid
+node.save
 
 # Bias the defaults toward ubuntu precise
 service_prefix = "swift-"
