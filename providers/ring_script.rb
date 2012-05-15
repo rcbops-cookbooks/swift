@@ -102,6 +102,7 @@ def generate_script
 
   new_disks = {}
   missing_disks = {}
+  new_servers = []
 
   [ "account", "container", "object" ].each do |which|
     # remove available disks that are already in the ring
@@ -121,6 +122,7 @@ def generate_script
         s << "#  " +  v.keys.sort.select{|x| ["ip", "device", "uuid"].include?(x)}.collect{|x| v[x] }.join(", ")
         if new_disks[which].has_key?(v["mountpoint"])
           s << " (NEW!)"
+          new_servers << ip unless new_servers.include?(ip)
         end
         s << "\n"
       end
@@ -159,6 +161,14 @@ def generate_script
       s << "swift-ring-builder #{ring_path}/#{which}.builder rebalance\n\n\n"
     else
       s << "# #{which.capitalize} ring has no outstanding changes!\n\n"
+    end
+
+    # we'll only rebalance if we meet the minimums for new adds
+    if node["swift"].has_key?("wait_for")
+      if node["swift"]["wait_for"] <= new_servers.count
+        Chef::Log.debug("New servers, but not enough to force a rebalance")
+        must_rebalance=0
+      end
     end
   end
   [ s, must_rebalance ]
