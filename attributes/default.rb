@@ -55,7 +55,5 @@ default["swift"]["attributes"] = {
       "account" => "openstack-swift-account"
     }
   },
-  "fedora-17" => {
-  }
 }
 
