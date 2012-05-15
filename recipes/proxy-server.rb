@@ -146,9 +146,10 @@ if node["swift"]["authmode"] == "keystone"
   end
 end
 
-require "pp"
-Chef::Log.info("Ips for memcache: #{PP.pp(IPManagement.get_ips_for_role('swift-proxy-server','swift-private', node), dump='')}")
-
+memcache_servers = [ IPManagement.get_ip_for_net("swift-private", node) ]
+unless node["roles"].include?("swift-management-server")
+  memcache_servers = IPManagement.get_ips_for_role("swift-proxy-server")
+end
 
 template "/etc/swift/proxy-server.conf" do
   source "proxy-server.conf.erb"
@@ -165,13 +166,13 @@ template "/etc/swift/proxy-server.conf" do
               "service_tenant_name" => node["swift"]["service_tenant_name"],
               "service_user" => node["swift"]["service_user"],
               "service_pass" => node["swift"]["service_pass"],
-              "memcache_servers" => IPManagement.get_ips_for_role("swift-proxy-server","swift-private", node)
+              "memcache_servers" => memcache_servers
               )
   else
     variables("authmode" => node["swift"]["authmode"],
               "bind_host" => IPManagement.get_ip_for_net("swift-public", node),
               "bind_port" => node["swift"]["api"]["port"],
-              "memcache_servers" => IPManagement.get_ips_for_role("swift-proxy-server","swift-private", node),
+              "memcache_servers" => memcache_servers,
               # FIXME: this is whack.  need port info for LB vips
               "cluster_endpoint" => "http://" + IPManagement.get_access_ip_for_role("swift-proxy-server", "swift-public", node) + ":" +
                                     node["swift"]["api"]["port"] + "/v1"
