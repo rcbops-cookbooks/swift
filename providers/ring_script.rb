@@ -165,7 +165,7 @@ def generate_script
 
     # we'll only rebalance if we meet the minimums for new adds
     if node["swift"].has_key?("wait_for")
-      if node["swift"]["wait_for"] <= new_servers.count
+      if node["swift"]["wait_for"] > new_servers.count
         Chef::Log.debug("New servers, but not enough to force a rebalance")
         must_rebalance=0
       end
