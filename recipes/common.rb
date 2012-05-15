@@ -31,7 +31,7 @@ service_prefix = "swift-"
 swift_package = "swift"
 
 if node["platform"] == "fedora" and node["platform_version"] == "17"
-  service_prefix = "openstack-"
+  service_prefix = "openstack-swift-"
   swift_package = "openstack-swift"
 end
 
