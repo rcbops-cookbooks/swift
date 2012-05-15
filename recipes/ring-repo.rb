@@ -143,6 +143,7 @@ bash "rebuild-rings" do
     git clean -df
 
     ../generate-rings.sh
+    for d in object account container; do swift-ring-builder ${d}.builder; done
 
     git add *builder *gz
     git commit -m "Autobuild of rings on $(date +%Y%m%d) by Chef" --author="chef <chef@openstack>"
