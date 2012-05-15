@@ -131,6 +131,11 @@ end
   end
 end
 
+dsh_group "swift-storage" do
+  action :nothing
+  execute "sudo /etc/swift/pull-rings.sh"
+end
+
 bash "rebuild-rings" do
   action :nothing
   cwd "/etc/swift/ring-workspace/rings"
@@ -152,7 +157,7 @@ bash "rebuild-rings" do
     # should dsh a ring pull at this point
     git push
   EOF
-
+  notifies :execute, "dsh_group[swift-storage]", :immediate
   only_if { node["swift"]["auto_rebuild_rings"] }
 end
 

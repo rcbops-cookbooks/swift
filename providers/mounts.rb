@@ -74,7 +74,7 @@ action :ensure_exists do
 
   # mounts in /srv/node that shouldn't be there
   (mounts.keys.select{|x| x and x[/^#{path}/]} - valid_mounts).each do |dev|
-    Chef::Log.info("Unmounting #{dev} (device #{unmount_device})")
+    Chef::Log.info("Unmounting #{dev}")
     system("umount #{dev}") if system("mount | grep '#{dev}'")
     new_resource.updated_by_last_action(true)
   end

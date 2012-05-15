@@ -85,4 +85,12 @@ execute "/etc/swift/pull-rings.sh" do
   only_if "[ -x /etc/swift/pull-rings.sh ]"
 end
 
-
+template "/etc/sudoers.d/swift" do
+  owner "root"
+  group "root"
+  mode "0440"
+  variables({
+              :node => node
+            })
+  action :nothing
+end

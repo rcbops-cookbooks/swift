@@ -38,7 +38,7 @@ package swift_swauth_package do
   only_if { node["swift"]["authmode"] == "swauth" }
 end
 
-# dsh_group "swift-storage" do
-#   admin_user "swift"
-#   network "swift"
-# end
+dsh_group "swift-storage" do
+  admin_user "root"
+  network "swift"
+end
