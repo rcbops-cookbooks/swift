@@ -146,7 +146,11 @@ if node["swift"]["authmode"] == "keystone"
   end
 end
 
+require "pp"
+Chef::Log.debug("Roles:  #{PP.pp(node['roles'],dump='')}")
 memcache_servers = [ IPManagement.get_ip_for_net("swift-private", node) ]
+Chef::Log.debug("Memcache server:  #{memcache_servers}")
+
 if not node["roles"].include?("swift-management-server")
   memcache_servers = IPManagement.get_ips_for_role("swift-proxy-server", "swift-private", node)
 end
