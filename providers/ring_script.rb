@@ -32,7 +32,7 @@ def generate_script
     ring_data[:raw][which] = nil
 
     if ::File.exist?("#{ring_path}/#{which}.builder")
-      IO.popen("swift-ring-builder #{ring_path}/#{which}.builder") do |pipe|
+      IO.popen("su swift -c 'swift-ring-builder #{ring_path}/#{which}.builder'") do |pipe|
         ring_data[:raw][which] = pipe.readlines
         # Chef::Log.debug("#{ which.capitalize } Ring data: #{ring_data[:raw][which]}")
         ring_data[:parsed][which] = parse_ring_output(ring_data[:raw][which])
