@@ -147,8 +147,8 @@ if node["swift"]["authmode"] == "keystone"
 end
 
 memcache_servers = [ IPManagement.get_ip_for_net("swift-private", node) ]
-unless node["roles"].include?("swift-management-server")
-  memcache_servers = IPManagement.get_ips_for_role("swift-proxy-server")
+if not node["roles"].include?("swift-management-server")
+  memcache_servers = IPManagement.get_ips_for_role("swift-proxy-server", "swift-private", node)
 end
 
 template "/etc/swift/proxy-server.conf" do
