@@ -1,1 +1,3 @@
+<% if node['dsh']['groups'].key? 'swift-storage' %>
 <%= node['dsh']['groups']['swift-storage']['user'] %> ALL= NOPASSWD: /etc/swift/pull-rings.sh
+<% end %>
