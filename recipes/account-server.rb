@@ -21,12 +21,12 @@ include_recipe "swift::common"
 include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
-attrs = get_attrs("swift")
+platform_options = node["swift"]["platform"]
 
-get_pkg("account").each do |pkg|
+platform_options["account_packages"].each.each do |pkg|
   package pkg do
     action :upgrade
-    options attrs["package_override_options"]
+    options platform_options["override_options"] # retain configs
   end
 end
 
@@ -49,10 +49,9 @@ end
 end
 
 %w{swift-account swift-account-auditor swift-account-reaper swift-account-replicator}.each do |svc|
-  svc_name = get_svc(svc)
   service svc do
-    service_name svc_name
-    provider attrs["service_provider"]
+    service_name platform_options["service_prefix"] + svc + platform_options["service_suffix"]
+    provider platform_options["service_provider"]
     supports :status => true, :restart => true
     action [:enable, :start]
     only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"

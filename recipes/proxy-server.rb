@@ -21,29 +21,14 @@ include_recipe "swift::common"
 include_recipe "swift::memcached"
 include_recipe "osops-utils"
 
-if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
-  swift_proxy_package = "openstack-swift-proxy"
-  service_prefix = "openstack-"
-  service_suffix = ".service"
+platform_options = node["swift"]["platform"]
 
-  # global
-  service_provider = Chef::Provider::Service::Systemd
-  package_override_options = ""
-else
-  # debian, ubuntu, other debian-ish
-  swift_proxy_package = "swift-proxy"
-  service_prefix = ""
-  service_suffix = ""
-
-  # global
-  service_provider = Chef::Provider::Service::Upstart
-  package_override_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
-end
-
-package swift_proxy_package do
-  action :upgrade
-  options package_override_options
+# install platform-specific packages
+platform_options["proxy_packages"].each do |pkg|
+  package pkg do
+    action :upgrade
+    options platform_options["override_options"]
+  end
 end
 
 package "python-swauth" do
@@ -57,8 +42,9 @@ package "python-keystone" do
 end
 
 service "swift-proxy" do
-  service_name "#{service_prefix}swift-proxy#{service_suffix}"
-  provider service_provider
+  # openstack-swift-proxy.service on fedora-17, swift-proxy on ubuntu
+  service_name platform_options["service_prefix"] + "swift-proxy" + platform_options["service_suffix"]
+  provider platform_options["service_provider"]
   supports :status => true, :restart => true
   action [ :enable, :start ]
   only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"

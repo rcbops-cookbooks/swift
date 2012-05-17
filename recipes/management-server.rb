@@ -24,18 +24,13 @@ include_recipe "swift::proxy-server"
 # with multiple repos!
 include_recipe "swift::ring-repo"
 
-if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
-  swift_swauth_package = "openstack-swauth"
-else
-  # debian, ubuntu, other debian-ish
-  swift_swauth_package = "swauth"
-end
+platform_options = node["swift"]["platform"]
 
-
-package swift_swauth_package do
-  action :upgrade
-  only_if { node["swift"]["authmode"] == "swauth" }
+platform_options["swauth_packages"].each do |pkg|
+  package pkg do
+    action :upgrade
+    only_if { node["swift"]["authmode"] == "swauth" }
+  end
 end
 
 dsh_group "swift-storage" do
