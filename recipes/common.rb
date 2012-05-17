@@ -20,23 +20,17 @@ include_recipe "osops-utils"
 
 class Chef::Recipe
   include DriveUtils
-  include Attributes
 end
 
 # make chef less stupid
 node.save
 
-# Bias the defaults toward ubuntu precise
-service_prefix = "swift-"
-swift_package = "swift"
+platform_options = node["swift"]["platform"]
 
-if node["platform"] == "fedora" and node["platform_version"] == "17"
-  service_prefix = "openstack-swift-"
-  swift_package = "openstack-swift"
-end
-
-package swift_package do
-  action :upgrade
+platform_options["swift_packages"].each do |pkg|
+  package pkg do
+    action :upgrade
+  end
 end
 
 directory "/etc/swift" do
@@ -75,7 +69,7 @@ template "/etc/swift/pull-rings.sh" do
   mode "0700"
   variables({
               :builder_ip => IPManagement.get_ips_for_role("swift-management-server","swift",node)[0],
-              :service_prefix => service_prefix
+              :service_prefix => platform_options["service_prefix"]
             })
   only_if "/usr/bin/id swift"
 end

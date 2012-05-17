@@ -17,23 +17,18 @@
 # limitations under the License.
 #
 
+platform_options=node["swift"]["platform"]
 bind_address = IPManagement.get_ip_for_net("swift-private", node)
 
 if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
-  memcached_package_options = ""
-  memcached_config_file = "/etc/sysconfig/memcached"
   memcached_sed_command = "'s/OPTIONS.*/OPTIONS=\"-l #{bind_address}\"/'"
 else
-  # debianish
-  memcached_package_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-  memcached_config_file = "/etc/memcached.conf"
   memcached_sed_command = "'s/^-l .*/-l #{bind_address}/'"
 end
 
 package "memcached" do
   action :upgrade
-  options memcached_package_options
+  options platform_options["override_options"]
 end
 
 service "memcached" do
@@ -42,8 +37,8 @@ service "memcached" do
 end
 
 execute "set listening port" do
-  command "sed -i #{memcached_config_file} -e #{memcached_sed_command}"
-  not_if "grep -q -- '-l #{bind_address}' #{memcached_config_file}"
+  command "sed -i #{platform_options["memcached_config_file"]} -e #{memcached_sed_command}"
+  not_if "grep -q -- '-l #{bind_address}' #{platform_options["memcached_config_file"]}"
   notifies :restart, resources(:service => "memcached"), :immediately
   action :run
 end

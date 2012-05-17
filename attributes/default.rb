@@ -9,6 +9,24 @@ default["swift"]["service_user"] = "swift"
 default["swift"]["service_pass"] = "tYPvpd5F"
 default["swift"]["service_role"] = "admin"
 
+# not ready to move to these yet
+# default["swift"]["services"]["proxy"]["protocol"] = "http"
+# default["swift"]["services"]["proxy"]["network"] = "swift-public"
+# default["swift"]["services"]["proxy"]["port"] = 8080
+
+# default["swift"]["services"]["object-server"]["protocol"] = "http"
+# default["swift"]["services"]["object-server"]["network"] = "swift"
+# default["swift"]["services"]["object-server"]["port"] = 6000
+
+# default["swift"]["services"]["container-server"]["protocol"] = "http"
+# default["swift"]["services"]["container-server"]["network"] = "swift"
+# default["swift"]["services"]["container-server"]["port"] = 6001
+
+# default["swift"]["services"]["account-server"]["protocol"] = "http"
+# default["swift"]["services"]["account-server"]["network"] = "swift"
+# default["swift"]["services"]["account-server"]["port"] = 6002
+
+
 default["swift"]["api"]["bind_address"] = "0.0.0.0"
 default["swift"]["api"]["port"] = "8080"
 default["swift"]["api"]["ip_address"] = node["ipaddress"]
@@ -16,6 +34,7 @@ default["swift"]["api"]["protocol"] = "http"
 default["swift"]["api"]["adminURL"] = "#{node["swift"]["api"]["protocol"]}://#{node["swift"]["api"]["ip_address"]}:#{node["swift"]["api"]["port"]}/v1/AUTH_%(tenant_id)s"
 default["swift"]["api"]["internalURL"] = node["swift"]["api"]["adminURL"]
 default["swift"]["api"]["publicURL"] = node["swift"]["api"]["adminURL"]
+
 
 # disk_test_filter is an array of predicates to test against disks to
 # determine if a disk should be formatted and configured for swift.
@@ -35,25 +54,43 @@ default["osops_networks"]["mapping"]["swift-lb"] = "public"
 default["osops_networks"]["mapping"]["swift-private"] = "swift"
 default["osops_networks"]["mapping"]["swift-public"] = "public"
 
-# Attributes for differences between distros.
-default["swift"]["attributes"] = {
-  "ubuntu" => {
-    "service_prefix" => "",
-    "service_suffix" => "",
-    "package_override_options" => "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'",
-    "service_provider_class" => "Chef::Provider::Service::Upstart",
-    "packages" => {
-      "account" => "swift-account"
-    }
-  },
-  "fedora" => {
+# Leveling between distros
+case platform
+when "fedora"
+  default["swift"]["platform"] = {
+    "proxy_packages" => ["openstack-swift-proxy"],
+    "object_packages" => ["openstack-swift-object"],
+    "container_packages" => ["openstack-swift-container"],
+    "account_packages" => ["openstack-swift-account"],
+    "swift_packages" => ["openstack-swift"],
+    "swauth_packages" => ["openstack-swauth"],
+    "rsync_packages" => ["rsync"],
+    "git_packages" => ["git", "git-daemon"],
+    "memcached_config_file" => "/etc/sysconfig/memcached",
     "service_prefix" => "openstack-",
     "service_suffix" => ".service",
-    "package_override_options" => "",
-    "service_provider_class" => "Chef::Provider::Service::Systemd",
-    "packages" => {
-      "account" => "openstack-swift-account"
-    }
-  },
-}
+    "git_dir" => "/var/lib/git",
+    "git_service" => "git",
+    "service_provider" => Chef::Provider::Service::Systemd,
+    "override_options" => ""
+  }
+when "ubuntu"
+  default["swift"]["platform"] = {
+    "proxy_packages" => ["swift-proxy"],
+    "object_packages" => ["swift-object"],
+    "container_packages" => ["swift-container"],
+    "account_packages" => ["swift-account"],
+    "swift_packages" => ["swift"],
+    "swauth_packages" => ["swauth"],
+    "rsync_packages" => ["rsyncd"],
+    "git_packages" => ["git-daemon"],
+    "memcached_config_file" => "/etc/memcached.conf",
+    "service_prefix" => "",
+    "service_suffix" => "",
+    "git_dir" => "/var/cache/git",
+    "git_service" => "git-daemon",
+    "service_provider" => Chef::Provider::Service::Upstart,
+    "override_options" => "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
+  }
+end
 

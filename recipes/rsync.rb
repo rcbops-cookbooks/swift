@@ -17,25 +17,13 @@
 # limitations under the License.
 #
 
+platform_options = node["swift"]["platform"]
 
-require "pp"
-
-if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
-  swift_force_options = ""
-  rsync_service_name = "rsync"
-  rsync_package = "rsync"
-else
-  # debian, ubuntu, other debian-ish
-  swift_force_options = "-o Dpkg::Options:='--force-confold' -o Dpkg::Options:='--force-confdef'"
-  rsync_service_name = "rsync"
-  rsync_package = "rsyncd"
-end
-
-package "rsyncd" do
-  package_name = rsync_package
-  action :upgrade
-  options swift_force_options
+platform_options["rsync_packages"].each do |pkg|
+  package pkg do
+    action :upgrade
+    options platform_options["override_options"]
+  end
 end
 
 # epel/f-17 broken: https://bugzilla.redhat.com/show_bug.cgi?id=737710
@@ -50,10 +38,9 @@ end
 
 # FIXME: chicken and egg
 service "rsync" do
-  service_name rsync_service_name
   supports :status => false, :restart => true
   action [ :enable, :start ]
-  not_if "[ ! -f /etc/rsyncd.conf ]"
+  only_if "[ -f /etc/rsyncd.conf ]"
 end
 
 template "/etc/rsyncd.conf" do

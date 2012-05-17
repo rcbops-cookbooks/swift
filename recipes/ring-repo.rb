@@ -21,21 +21,9 @@
 # for purposes of ring synchronization
 #
 
-if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
-  git_packages = %w{git git-daemon}
-  git_dir = "/var/lib/git"
-  daemon_service="git"
-  service_provider = Chef::Provider::Service::Systemd
-else
-  # debian, ubuntu, other debian-ish
-  git_packages = %w{git git-daemon-sysvinit}
-  git_dir = "/var/cache/git"
-  daemon_service="git-daemon"
-  service_provider = Chef::Provider::Service::Upstart
-end
+platform_options = node["swift"]["platform"]
 
-git_packages.each do |pkg|
+platform_options["git_packages"].each do |pkg|
   package pkg do
     action :upgrade
   end
@@ -44,13 +32,13 @@ end
 execute "create empty git repo" do
   cwd "/tmp"
   umask 022
-  command "mkdir $$; cd $$; git init; echo \"backups\" \> .gitignore; git add .gitignore; git commit -m 'initial commit' --author='chef <chef@openstack>'; git push file:///#{git_dir}/rings master"
+  command "mkdir $$; cd $$; git init; echo \"backups\" \> .gitignore; git add .gitignore; git commit -m 'initial commit' --author='chef <chef@openstack>'; git push file:///#{platform_options["git_dir"]}/rings master"
   user "swift"
   action :nothing
 end
 
 directory "git-directory" do
-  path "#{git_dir}/rings"
+  path "#{platform_options["git_dir"]}/rings"
   owner "swift"
   group "swift"
   mode "0755"
@@ -59,11 +47,11 @@ directory "git-directory" do
 end
 
 execute "initialize git repo" do
-  cwd "#{git_dir}/rings"
+  cwd "#{platform_options["git_dir"]}/rings"
   umask 022
   user "swift"
   command "git init --bare && touch git-daemon-export-ok"
-  creates "#{git_dir}/rings/config"
+  creates "#{platform_options["git_dir"]}/rings/config"
   action :run
   notifies :run, resources(:execute => "create empty git repo"), :immediately
 end
@@ -85,7 +73,7 @@ template "/etc/systemd/system/git.service" do
 end
 
 service "git-daemon" do
-  service_name daemon_service
+  service_name platform_options["git_service"]
   action [ :enable, :start ]
 end
 
@@ -108,7 +96,7 @@ end
 
 execute "checkout-rings" do
   cwd "/etc/swift/ring-workspace"
-  command "git clone file://#{git_dir}/rings"
+  command "git clone file://#{platform_options["git_dir"]}/rings"
   user "swift"
   creates "/etc/swift/ring-workspace/rings"
 end

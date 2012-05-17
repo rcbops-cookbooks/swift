@@ -24,21 +24,55 @@ include_recipe "swift::proxy-server"
 # with multiple repos!
 include_recipe "swift::ring-repo"
 
-if platform?(%w{fedora})
-  # fedora, maybe other rhel-ish dists
-  swift_swauth_package = "openstack-swauth"
-else
-  # debian, ubuntu, other debian-ish
-  swift_swauth_package = "swauth"
-end
+platform_options = node["swift"]["platform"]
 
-
-package swift_swauth_package do
-  action :upgrade
-  only_if { node["swift"]["authmode"] == "swauth" }
+platform_options["swauth_packages"].each do |pkg|
+  package pkg do
+    action :upgrade
+    only_if { node["swift"]["authmode"] == "swauth" }
+  end
 end
 
 dsh_group "swift-storage" do
   admin_user "root"
   network "swift"
+end
+
+# dispersion tools only work right now with swauth auth
+execute "populate-dispersion" do
+  command "swift-dispersion-populate"
+  user "swift"
+  action :nothing
+  only_if { node["swift"]["authmode"] == "swauth" }
+end
+
+keystone = {}
+# FIXME: library this out
+if node["swift"]["authmode"] == "keystone"
+  result = node
+
+  if not Chef::Config[:solo]
+    (result,*_), _, _ = Chef::Search::Query.new.search(:node, "roles:keystone AND chef_environment:#{node.chef_environment}")
+    result = node if (result == nil or result.length <= 0)
+  end
+
+  keystone = result["keystone"].inject({}){ |hsh, (k,v)| hsh.merge(k => v) }
+
+  # FIXME: this should really return ip and port
+  keystone["api_ipaddress"]=IPManagement.get_access_ip_for_role("keystone", "swift-lb", node)
+  keystone["auth_url"] = "http://#{keystone['api_ipaddress']}:#{keystone['service_port']}/v2.0/"
+end
+
+# FIXME: broken for swauth
+template "/etc/swift/dispersion.conf" do
+  source "dispersion.conf.erb"
+  owner "swift"
+  group "swift"
+  mode "0600"
+  variables("auth_url" => keystone["auth_url"],
+            "auth_user" => "admin",
+            "auth_key" => keystone["users"]["admin"]["password"])
+
+  only_if "swift-recon --objmd5 | grep -q '0 error'"
+  notifies :run, "execute[populate-dispersion]", :immediately
 end
