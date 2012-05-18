@@ -61,11 +61,19 @@ end
   end
 end
 
+object_endpoint = get_bind_endpoint("swift","object-server")
+Chef::Log.info("object endpoint: #{PP.pp(object_endpoint,dump='')}")
+
 template "/etc/swift/object-server.conf" do
   source "object-server.conf.erb"
   owner "swift"
   group "swift"
   mode "0600"
+  variables("bind_ip" => object_endpoint["host"],
+            "bind_port" => object_endpoint["port"])
+
+
+
   notifies :restart, "service[swift-object]", :immediately
   notifies :restart, "service[swift-object-replicator]", :immediately
   notifies :restart, "service[swift-object-updater]", :immediately

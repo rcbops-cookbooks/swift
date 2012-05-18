@@ -58,11 +58,16 @@ end
   end
 end
 
+account_endpoint = get_bind_endpoint("swift","account-server")
+
 template "/etc/swift/account-server.conf" do
   source "account-server.conf.erb"
   owner "swift"
   group "swift"
   mode "0600"
+  variables("bind_ip" => account_endpoint["host"],
+            "bind_port" => account_endpoint["port"])
+
   notifies :restart, "service[swift-account]", :immediately
   notifies :restart, "service[swift-account-auditor]", :immediately
   notifies :restart, "service[swift-account-reaper]", :immediately
