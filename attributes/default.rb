@@ -6,7 +6,8 @@ default["swift"]["auto_rebuild_rings"] = false
 
 default["swift"]["service_tenant_name"] = "service"
 default["swift"]["service_user"] = "swift"
-default["swift"]["service_pass"] = "tYPvpd5F"
+# Replacing with OpenSSL::Password in recipes/proxy-server.rb
+#default["swift"]["service_pass"] = "tYPvpd5F"
 default["swift"]["service_role"] = "admin"
 
 # not ready to move to these yet
