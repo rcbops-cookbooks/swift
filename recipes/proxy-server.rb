@@ -15,11 +15,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
+::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 include_recipe "swift::common"
 include_recipe "swift::memcached"
 include_recipe "osops-utils"
+
+# Set a secure keystone service password
+node.set_unless['swift']['service_pass'] = secure_password
 
 platform_options = node["swift"]["platform"]
 
