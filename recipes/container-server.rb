@@ -59,11 +59,16 @@ end
   end
 end
 
+container_endpoint = get_bind_endpoint("swift","container-server")
+
 template "/etc/swift/container-server.conf" do
   source "container-server.conf.erb"
   owner "swift"
   group "swift"
   mode "0600"
+  variables("bind_ip" => container_endpoint["host"],
+            "bind_port" => container_endpoint["port"])
+
   notifies :restart, "service[swift-container]", :immediately
   notifies :restart, "service[swift-container-replicator]", :immediately
   notifies :restart, "service[swift-container-updater]", :immediately

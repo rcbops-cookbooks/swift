@@ -11,21 +11,18 @@ default["swift"]["service_user"] = "swift"
 default["swift"]["service_role"] = "admin"
 
 # not ready to move to these yet
-# default["swift"]["services"]["proxy"]["protocol"] = "http"
-# default["swift"]["services"]["proxy"]["network"] = "swift-public"
-# default["swift"]["services"]["proxy"]["port"] = 8080
+default["swift"]["services"]["proxy"]["scheme"] = "http"
+default["swift"]["services"]["proxy"]["network"] = "swift-public"
+default["swift"]["services"]["proxy"]["port"] = 8080
 
-# default["swift"]["services"]["object-server"]["protocol"] = "http"
-# default["swift"]["services"]["object-server"]["network"] = "swift"
-# default["swift"]["services"]["object-server"]["port"] = 6000
+default["swift"]["services"]["object-server"]["network"] = "swift"
+default["swift"]["services"]["object-server"]["port"] = 6000
 
-# default["swift"]["services"]["container-server"]["protocol"] = "http"
-# default["swift"]["services"]["container-server"]["network"] = "swift"
-# default["swift"]["services"]["container-server"]["port"] = 6001
+default["swift"]["services"]["container-server"]["network"] = "swift"
+default["swift"]["services"]["container-server"]["port"] = 6001
 
-# default["swift"]["services"]["account-server"]["protocol"] = "http"
-# default["swift"]["services"]["account-server"]["network"] = "swift"
-# default["swift"]["services"]["account-server"]["port"] = 6002
+default["swift"]["services"]["account-server"]["network"] = "swift"
+default["swift"]["services"]["account-server"]["port"] = 6002
 
 
 default["swift"]["api"]["bind_address"] = "0.0.0.0"
@@ -84,7 +81,7 @@ when "ubuntu"
     "swift_packages" => ["swift"],
     "swauth_packages" => ["swauth"],
     "rsync_packages" => ["rsyncd"],
-    "git_packages" => ["git-daemon"],
+    "git_packages" => ["git-daemon-sysvinit"],
     "memcached_config_file" => "/etc/memcached.conf",
     "service_prefix" => "",
     "service_suffix" => "",
