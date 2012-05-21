@@ -28,6 +28,11 @@ default["swift"]["services"]["account-server"]["port"] = 6002
 default["swift"]["services"]["memcache"]["network"] = "swift"
 default["swift"]["services"]["memcache"]["port"] = 11211
 
+default["swift"]["services"]["ring-repo"]["network"] = "swift"
+default["swift"]["services"]["ring-repo"]["port"] = 9418
+default["swift"]["services"]["ring-repo"]["scheme"] = "git"
+default["swift"]["services"]["ring-repo"]["path"] = "/rings"
+
 # disk_test_filter is an array of predicates to test against disks to
 # determine if a disk should be formatted and configured for swift.
 # Each predicate is evaluated in turn, and a false from the predicate
