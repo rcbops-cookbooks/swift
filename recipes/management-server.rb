@@ -18,7 +18,7 @@
 #
 
 include_recipe "swift::common"
-include_recipe "swift::proxy-server"
+#include_recipe "swift::proxy-server"  # this is really only necessary for swauth.
 
 # FIXME: This should probably be a role (ring-builder?), so you don't end up
 # with multiple repos!

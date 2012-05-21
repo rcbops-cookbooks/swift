@@ -18,7 +18,7 @@
 #
 
 platform_options=node["swift"]["platform"]
-bind_address = IPManagement.get_ip_for_net("swift-private", node)
+bind_address = get_bind_endpoint("swift","memcache")["host"]
 
 if platform?(%w{fedora})
   memcached_sed_command = "'s/OPTIONS.*/OPTIONS=\"-l #{bind_address}\"/'"

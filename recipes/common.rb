@@ -26,6 +26,7 @@ end
 node.save
 
 platform_options = node["swift"]["platform"]
+git_service = get_access_endpoint("swift-management-server","swift","ring-repo")
 
 platform_options["swift_packages"].each do |pkg|
   package pkg do
@@ -68,7 +69,7 @@ template "/etc/swift/pull-rings.sh" do
   group "swift"
   mode "0700"
   variables({
-              :builder_ip => IPManagement.get_ips_for_role("swift-management-server","swift",node)[0],
+              :builder_ip => git_service["host"],
               :service_prefix => platform_options["service_prefix"]
             })
   only_if "/usr/bin/id swift"
