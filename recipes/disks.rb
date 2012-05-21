@@ -39,10 +39,12 @@ end
 #
 # additionally, there is an implicit assumption that bind ports
 # for all object/container/account services are on the same net
+disk_ip = get_ip_for_net(node["swift"]["services"]["object-server"]["network"])
+
 swift_mounts "/srv/node" do
   action :ensure_exists
   publish_attributes "swift/state/devs"
   devices disks.collect { |x| "#{x}1" }
-  ip get_ip_for_net(node["swift"]["services"]["object-server"]["network"])
+  ip disk_ip
 end
 
