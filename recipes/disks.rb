@@ -34,10 +34,15 @@ disks.each do |disk|
   end
 end
 
+# FIXME: "#{x}1" is only really valid for {v,s,h}dx.  Doesn't
+# work for loop or probably for hp-style /dev/cciss/c0d0p1x0t0g0m1whatever
+#
+# additionally, there is an implicit assumption that bind ports
+# for all object/container/account services are on the same net
 swift_mounts "/srv/node" do
   action :ensure_exists
   publish_attributes "swift/state/devs"
   devices disks.collect { |x| "#{x}1" }
-  ip IPManagement.get_ip_for_net("swift-public", node)
+  ip get_ip_for_net(node["swift"]["services"]["object-server"]["network"])
 end
 
