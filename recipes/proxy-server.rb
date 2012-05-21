@@ -53,22 +53,35 @@ service "swift-proxy" do
   only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
 end
 
+# Find all our endpoint info
+
+
+memcache_endpoints = get_realserver_endpoints("swift-proxy-server",
+                                            "swift", "memcache")
+
+# We'll just use a single memcache if we're set up as a management
+# server, so as not to pollute the production memcache servers
+if node["roles"].include?("swift-management-server")
+  memcache_endpoints = [ get_bind_endpoint("swift","memcache") ]
+end
+
+memcache_servers = memcache_endpoints.collect do |endpoint|
+  "#{endpoint["host"]}:#{endpoint["port"]}"
+end
+
+proxy_bind = get_bind_endpoint("swift", "proxy")
+proxy_access = get_access_endpoint("swift-proxy-server",
+                                   "swift", "proxy")
+
 if node["swift"]["authmode"] == "keystone"
-  result = node
+  keystone = get_settings_by_role("keystone", "keystone")
 
-  if not Chef::Config[:solo]
-    (result,*_), _, _ = Chef::Search::Query.new.search(:node, "roles:keystone AND chef_environment:#{node.chef_environment}")
-    result = node if (result == nil or result.length <= 0)
-  end
-
-  keystone = Hash[result["keystone"].select { |k,v| ["admin_port", "admin_token"].include?(k) }]
-
-  # FIXME: this should really return ip and port
-  keystone["api_ipaddress"]=IPManagement.get_access_ip_for_role("keystone", "swift-lb", node)
+  # FIXME: use get_access_endpoint
+  api_ipaddress=IPManagement.get_access_ip_for_role("keystone", "swift-lb", node)
 
   # Register Service Tenant
   keystone_register "Register Service Tenant" do
-    auth_host keystone["api_ipaddress"]
+    auth_host api_ipaddress
     auth_port keystone["admin_port"]
     auth_protocol "http"            # FIXME: bad smell
     api_ver "/v2.0"
@@ -81,7 +94,7 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Service User
   keystone_register "Register Service User" do
-    auth_host keystone["api_ipaddress"]
+    auth_host api_ipaddress
     auth_port keystone["admin_port"]
     auth_protocol "http"
     api_ver "/v2.0"
@@ -95,7 +108,7 @@ if node["swift"]["authmode"] == "keystone"
 
   ## Grant Admin role to Service User for Service Tenant ##
   keystone_register "Grant 'admin' Role to Service User for Service Tenant" do
-    auth_host keystone["api_ipaddress"]
+    auth_host api_ipaddress
     auth_port keystone["admin_port"]
     auth_protocol "http"
     api_ver "/v2.0"
@@ -108,7 +121,7 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Storage Service
   keystone_register "Register Storage Service" do
-    auth_host keystone["api_ipaddress"]
+    auth_host api_ipaddress
     auth_port keystone["admin_port"]
     auth_protocol "http"
     api_ver "/v2.0"
@@ -121,27 +134,18 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Storage Endpoint
   keystone_register "Register Storage Endpoint" do
-    auth_host keystone["api_ipaddress"]
+    auth_host api_ipaddress
     auth_port keystone["admin_port"]
     auth_protocol "http"
     api_ver "/v2.0"
     auth_token keystone["admin_token"]
     service_type "object-store"
     endpoint_region "RegionOne"
-    endpoint_adminurl node["swift"]["api"]["adminURL"]
-    endpoint_internalurl node["swift"]["api"]["internalURL"]
-    endpoint_publicurl node["swift"]["api"]["publicURL"]
+    endpoint_adminurl "#{proxy_access['uri']}/v1/AUTH_%(tenant_id)s"
+    endpoint_internalurl "#{proxy_access['uri']}/v1/AUTH_%(tenant_id)s"
+    endpoint_publicurl "#{proxy_access['uri']}/v1/AUTH_%(tenant_id)s"
     action :create_endpoint
   end
-end
-
-require "pp"
-Chef::Log.debug("Roles:  #{PP.pp(node['roles'],dump='')}")
-memcache_servers = [ IPManagement.get_ip_for_net("swift-private", node) ]
-Chef::Log.debug("Memcache server:  #{memcache_servers}")
-
-if not node["roles"].include?("swift-management-server")
-  memcache_servers = IPManagement.get_ips_for_role("swift-proxy-server", "swift-private", node)
 end
 
 template "/etc/swift/proxy-server.conf" do
@@ -151,9 +155,9 @@ template "/etc/swift/proxy-server.conf" do
   mode "0600"
   if node["swift"]["authmode"] == "keystone"
     variables("authmode" => node["swift"]["authmode"],
-              "bind_host" => IPManagement.get_ip_for_net("swift-public", node),
-              "bind_port" => node["swift"]["api"]["port"],
-              "keystone_api_ipaddress" => keystone["api_ipaddress"],
+              "bind_host" => proxy_bind["host"],
+              "bind_port" => proxy_bind["port"],
+              "keystone_api_ipaddress" => api_ipaddress,
               "keystone_service_port" => keystone["service_port"],
               "keystone_admin_port" => keystone["admin_port"],
               "service_tenant_name" => node["swift"]["service_tenant_name"],
@@ -163,12 +167,10 @@ template "/etc/swift/proxy-server.conf" do
               )
   else
     variables("authmode" => node["swift"]["authmode"],
-              "bind_host" => IPManagement.get_ip_for_net("swift-public", node),
-              "bind_port" => node["swift"]["api"]["port"],
+              "bind_host" => proxy_bind["host"],
+              "bind_port" => proxy_bind["port"],
               "memcache_servers" => memcache_servers,
-              # FIXME: this is whack.  need port info for LB vips
-              "cluster_endpoint" => "http://" + IPManagement.get_access_ip_for_role("swift-proxy-server", "swift-public", node) + ":" +
-                                    node["swift"]["api"]["port"] + "/v1"
+              "cluster_endpoint" => "#{proxy_access['uri']}/v1"
               )
   end
   notifies :restart, resources(:service => "swift-proxy"), :immediately

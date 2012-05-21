@@ -24,6 +24,9 @@ default["swift"]["services"]["container-server"]["port"] = 6001
 default["swift"]["services"]["account-server"]["network"] = "swift"
 default["swift"]["services"]["account-server"]["port"] = 6002
 
+default["swift"]["services"]["memcache"]["network"] = "swift"
+default["swift"]["services"]["memcache"]["port"] = 11211
+
 
 default["swift"]["api"]["bind_address"] = "0.0.0.0"
 default["swift"]["api"]["port"] = "8080"
