@@ -14,6 +14,7 @@ default["swift"]["service_role"] = "admin"
 default["swift"]["services"]["proxy"]["scheme"] = "http"
 default["swift"]["services"]["proxy"]["network"] = "swift-public"
 default["swift"]["services"]["proxy"]["port"] = 8080
+default["swift"]["services"]["proxy"]["path"] = "/v1"
 
 default["swift"]["services"]["object-server"]["network"] = "swift"
 default["swift"]["services"]["object-server"]["port"] = 6000
@@ -24,15 +25,8 @@ default["swift"]["services"]["container-server"]["port"] = 6001
 default["swift"]["services"]["account-server"]["network"] = "swift"
 default["swift"]["services"]["account-server"]["port"] = 6002
 
-
-default["swift"]["api"]["bind_address"] = "0.0.0.0"
-default["swift"]["api"]["port"] = "8080"
-default["swift"]["api"]["ip_address"] = node["ipaddress"]
-default["swift"]["api"]["protocol"] = "http"
-default["swift"]["api"]["adminURL"] = "#{node["swift"]["api"]["protocol"]}://#{node["swift"]["api"]["ip_address"]}:#{node["swift"]["api"]["port"]}/v1/AUTH_%(tenant_id)s"
-default["swift"]["api"]["internalURL"] = node["swift"]["api"]["adminURL"]
-default["swift"]["api"]["publicURL"] = node["swift"]["api"]["adminURL"]
-
+default["swift"]["services"]["memcache"]["network"] = "swift"
+default["swift"]["services"]["memcache"]["port"] = 11211
 
 # disk_test_filter is an array of predicates to test against disks to
 # determine if a disk should be formatted and configured for swift.
