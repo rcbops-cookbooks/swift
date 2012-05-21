@@ -153,26 +153,21 @@ template "/etc/swift/proxy-server.conf" do
   owner "swift"
   group "swift"
   mode "0600"
-  if node["swift"]["authmode"] == "keystone"
-    variables("authmode" => node["swift"]["authmode"],
-              "bind_host" => proxy_bind["host"],
-              "bind_port" => proxy_bind["port"],
-              "keystone_api_ipaddress" => api_ipaddress,
-              "keystone_service_port" => keystone["service_port"],
-              "keystone_admin_port" => keystone["admin_port"],
-              "service_tenant_name" => node["swift"]["service_tenant_name"],
-              "service_user" => node["swift"]["service_user"],
-              "service_pass" => node["swift"]["service_pass"],
-              "memcache_servers" => memcache_servers
-              )
-  else
-    variables("authmode" => node["swift"]["authmode"],
-              "bind_host" => proxy_bind["host"],
-              "bind_port" => proxy_bind["port"],
-              "memcache_servers" => memcache_servers,
-              "cluster_endpoint" => "#{proxy_access['uri']}/v1"
-              )
-  end
+  variables("authmode" => node["swift"]["authmode"],
+            "bind_host" => proxy_bind["host"],
+            "bind_port" => proxy_bind["port"],
+            "keystone_api_ipaddress" => api_ipaddress,
+            "keystone_service_port" => keystone["service_port"],
+            "keystone_admin_port" => keystone["admin_port"],
+            "service_tenant_name" => node["swift"]["service_tenant_name"],
+            "service_user" => node["swift"]["service_user"],
+            "service_pass" => node["swift"]["service_pass"],
+            "memcache_servers" => memcache_servers
+            "bind_host" => proxy_bind["host"],
+            "bind_port" => proxy_bind["port"],
+            "memcache_servers" => memcache_servers,
+            "cluster_endpoint" => "#{proxy_access['uri']}/v1"
+            )
   notifies :restart, resources(:service => "swift-proxy"), :immediately
 end
 
