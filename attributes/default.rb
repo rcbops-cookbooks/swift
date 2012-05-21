@@ -28,16 +28,6 @@ default["swift"]["services"]["account-server"]["port"] = 6002
 default["swift"]["services"]["memcache"]["network"] = "swift"
 default["swift"]["services"]["memcache"]["port"] = 11211
 
-
-default["swift"]["api"]["bind_address"] = "0.0.0.0"
-default["swift"]["api"]["port"] = "8080"
-default["swift"]["api"]["ip_address"] = node["ipaddress"]
-default["swift"]["api"]["protocol"] = "http"
-default["swift"]["api"]["adminURL"] = "#{node["swift"]["api"]["protocol"]}://#{node["swift"]["api"]["ip_address"]}:#{node["swift"]["api"]["port"]}/v1/AUTH_%(tenant_id)s"
-default["swift"]["api"]["internalURL"] = node["swift"]["api"]["adminURL"]
-default["swift"]["api"]["publicURL"] = node["swift"]["api"]["adminURL"]
-
-
 # disk_test_filter is an array of predicates to test against disks to
 # determine if a disk should be formatted and configured for swift.
 # Each predicate is evaluated in turn, and a false from the predicate

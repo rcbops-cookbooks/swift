@@ -162,7 +162,7 @@ template "/etc/swift/proxy-server.conf" do
             "service_tenant_name" => node["swift"]["service_tenant_name"],
             "service_user" => node["swift"]["service_user"],
             "service_pass" => node["swift"]["service_pass"],
-            "memcache_servers" => memcache_servers
+            "memcache_servers" => memcache_servers,
             "bind_host" => proxy_bind["host"],
             "bind_port" => proxy_bind["port"],
             "memcache_servers" => memcache_servers,
