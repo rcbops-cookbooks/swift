@@ -14,6 +14,7 @@ default["swift"]["service_role"] = "admin"
 default["swift"]["services"]["proxy"]["scheme"] = "http"
 default["swift"]["services"]["proxy"]["network"] = "swift-public"
 default["swift"]["services"]["proxy"]["port"] = 8080
+default["swift"]["services"]["proxy"]["path"] = "/v1"
 
 default["swift"]["services"]["object-server"]["network"] = "swift"
 default["swift"]["services"]["object-server"]["port"] = 6000

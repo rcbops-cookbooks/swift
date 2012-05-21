@@ -141,9 +141,9 @@ if node["swift"]["authmode"] == "keystone"
     auth_token keystone["admin_token"]
     service_type "object-store"
     endpoint_region "RegionOne"
-    endpoint_adminurl "#{proxy_access['uri']}/v1/AUTH_%(tenant_id)s"
-    endpoint_internalurl "#{proxy_access['uri']}/v1/AUTH_%(tenant_id)s"
-    endpoint_publicurl "#{proxy_access['uri']}/v1/AUTH_%(tenant_id)s"
+    endpoint_adminurl "#{proxy_access['uri']}/AUTH_%(tenant_id)s"
+    endpoint_internalurl "#{proxy_access['uri']}/AUTH_%(tenant_id)s"
+    endpoint_publicurl "#{proxy_access['uri']}/AUTH_%(tenant_id)s"
     action :create_endpoint
   end
 end
