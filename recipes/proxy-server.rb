@@ -77,14 +77,15 @@ if node["swift"]["authmode"] == "keystone"
   keystone = get_settings_by_role("keystone", "keystone")
 
   # FIXME: use get_access_endpoint
-  api_ipaddress=IPManagement.get_access_ip_for_role("keystone", "swift-lb", node)
+  ks_admin = get_access_endpoint("keystone","keystone","admin-api")
+  ks_service = get_access_endpoint("keystone","keystone","service-api")
 
   # Register Service Tenant
   keystone_register "Register Service Tenant" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"            # FIXME: bad smell
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     tenant_description "Service Tenant"
@@ -94,10 +95,10 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Service User
   keystone_register "Register Service User" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["service_user"]
@@ -108,10 +109,10 @@ if node["swift"]["authmode"] == "keystone"
 
   ## Grant Admin role to Service User for Service Tenant ##
   keystone_register "Grant 'admin' Role to Service User for Service Tenant" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["service_user"]
@@ -121,10 +122,10 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Storage Service
   keystone_register "Register Storage Service" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     service_name "swift"
     service_type "object-store"
@@ -134,10 +135,10 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Storage Endpoint
   keystone_register "Register Storage Endpoint" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     service_type "object-store"
     endpoint_region "RegionOne"
@@ -156,18 +157,16 @@ template "/etc/swift/proxy-server.conf" do
   variables("authmode" => node["swift"]["authmode"],
             "bind_host" => proxy_bind["host"],
             "bind_port" => proxy_bind["port"],
-            "keystone_api_ipaddress" => api_ipaddress,
-            "keystone_service_port" => keystone["service_port"],
-            "keystone_admin_port" => keystone["admin_port"],
+            "keystone_api_ipaddress" => ks_admin["host"],
+            "keystone_service_port" => ks_service["port"],
+            "keystone_admin_port" => ks_admin["port"],
             "service_tenant_name" => node["swift"]["service_tenant_name"],
             "service_user" => node["swift"]["service_user"],
             "service_pass" => node["swift"]["service_pass"],
             "memcache_servers" => memcache_servers,
             "bind_host" => proxy_bind["host"],
             "bind_port" => proxy_bind["port"],
-            "memcache_servers" => memcache_servers,
-            "cluster_endpoint" => "#{proxy_access['uri']}/v1"
+            "cluster_endpoint" => proxy_access["uri"]
             )
   notifies :restart, resources(:service => "swift-proxy"), :immediately
 end
-
