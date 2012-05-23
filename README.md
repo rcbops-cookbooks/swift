@@ -69,7 +69,7 @@ For "keystone", the following attributes are used:
 
  * [:keystone][:admin_user]
 
-In addition, there are some attributess used by osops-utils to find
+In addition, there are some attributes used by osops-utils to find
 interfaces on particular devices.
 
  * node[:osops_networks][:swift] - CIDR of the storage network (what
