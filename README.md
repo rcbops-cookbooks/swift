@@ -149,8 +149,8 @@ Run list for proxy server:
 Run list for combined object, container, and account server:
 
     "run_list": [
-	    "role[swift-object-server]",
-	    "role[swift-container-server]",
+        "role[swift-object-server]",
+        "role[swift-container-server]",
         "role[swift-account-server]"
     ]
 
