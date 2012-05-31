@@ -12,9 +12,6 @@ recipe            "swift::container-server", "Installs the swift container serve
   supports os
 end
 
-depends "osops-utils"
-depends "dsh"
-depends "keystone"
-
-# depends "apt"
-# depends "openssh"
+%w{ osops-utils dsh keystone }.each do |dep|
+  depends dep
+end
