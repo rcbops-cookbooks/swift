@@ -79,7 +79,7 @@ when "ubuntu"
     "account_packages" => ["swift-account"],
     "swift_packages" => ["swift"],
     "swauth_packages" => ["swauth"],
-    "rsync_packages" => ["rsyncd"],
+    "rsync_packages" => ["rsync"],
     "git_packages" => ["git-daemon-sysvinit"],
     "memcached_config_file" => "/etc/memcached.conf",
     "service_prefix" => "",
@@ -90,4 +90,3 @@ when "ubuntu"
     "override_options" => "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
   }
 end
-

@@ -71,7 +71,7 @@ template "/etc/swift/dispersion.conf" do
   mode "0600"
   variables("auth_url" => keystone["auth_url"],
             "auth_user" => keystone["admin_user"],
-            "auth_key" => keystone["users"][auth_user]["password"])
+            "auth_key" => keystone["users"][keystone["admin_user"]]["password"])
 
   only_if "swift-recon --objmd5 | grep -q '0 error'"
   notifies :run, "execute[populate-dispersion]", :immediately
