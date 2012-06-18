@@ -86,3 +86,8 @@ template "/etc/sudoers.d/swift" do
             })
   action :nothing
 end
+
+
+if get_settings_by_role("collectd-server", "roles") and node["roles"].include?("collectd-client")
+  include_recipe "swift::common-monitoring"
+end
