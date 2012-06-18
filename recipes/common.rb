@@ -22,9 +22,6 @@ class Chef::Recipe
   include DriveUtils
 end
 
-# make chef less stupid
-node.save
-
 platform_options = node["swift"]["platform"]
 git_service = get_access_endpoint("swift-management-server","swift","ring-repo")
 
@@ -88,4 +85,9 @@ template "/etc/sudoers.d/swift" do
               :node => node
             })
   action :nothing
+end
+
+
+if get_settings_by_role("collectd-server", "roles") and node["roles"].include?("collectd-client")
+  include_recipe "swift::common-monitoring"
 end
