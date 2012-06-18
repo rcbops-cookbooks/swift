@@ -17,6 +17,7 @@
 # limitations under the License.
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
+include_recipe "apt"
 include_recipe "swift::common"
 include_recipe "swift::memcached"
 include_recipe "osops-utils"
@@ -25,6 +26,19 @@ include_recipe "osops-utils"
 node.set_unless['swift']['service_pass'] = secure_password
 
 platform_options = node["swift"]["platform"]
+
+# set up repo for osops, in case we want swift-informant
+# need to push upstreams to package this
+if node["platform"] == "ubuntu" and node["swift"]["use_informant"]
+      apt_repository "osops" do
+      uri "http://ppa.launchpad.net/osops-packaging/ppa/ubuntu"
+      distribution node["lsb"]["codename"]
+      components ["main"]
+      keyserver "keyserver.ubuntu.com"
+      key "53E8EA35"
+      notifies :run, resources(:execute => "apt-get update"), :immediately
+  end
+end
 
 # install platform-specific packages
 platform_options["proxy_packages"].each do |pkg|
@@ -37,6 +51,11 @@ end
 package "python-swauth" do
   action :upgrade
   only_if { node["swift"]["authmode"] == "swauth" }
+end
+
+package "python-swift-informant" do
+  action :upgrade
+  only_if { node["swift"]["use_informant"] }
 end
 
 package "python-keystone" do
@@ -55,7 +74,7 @@ end
 
 # Find all our endpoint info
 
-
+statsd_endpoint = get_access_endpoint("graphite", "statsd", "statsd")
 memcache_endpoints = get_realserver_endpoints("swift-proxy-server",
                                             "swift", "memcache")
 
@@ -166,7 +185,10 @@ template "/etc/swift/proxy-server.conf" do
             "memcache_servers" => memcache_servers,
             "bind_host" => proxy_bind["host"],
             "bind_port" => proxy_bind["port"],
-            "cluster_endpoint" => proxy_access["uri"]
+            "cluster_endpoint" => proxy_access["uri"],
+            "use_informant" => node["swift"]["use_informant"],
+            "statsd_host" => statsd_endpoint["host"],
+            "statsd_port" => statsd_endpoint["port"]
             )
   notifies :restart, resources(:service => "swift-proxy"), :immediately
 end

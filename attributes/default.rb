@@ -10,7 +10,12 @@ default["swift"]["service_user"] = "swift"
 #default["swift"]["service_pass"] = "tYPvpd5F"
 default["swift"]["service_role"] = "admin"
 
-# not ready to move to these yet
+# should we use swift-informant?
+# we'll default this to off until we get upstream
+# packages from distros.  You can still use it, just be aware
+# it gets packages from the osops ppa
+default["swift"]["use_informant"] = false
+
 default["swift"]["services"]["proxy"]["scheme"] = "http"
 default["swift"]["services"]["proxy"]["network"] = "swift-public"
 default["swift"]["services"]["proxy"]["port"] = 8080
