@@ -22,9 +22,6 @@ class Chef::Recipe
   include DriveUtils
 end
 
-# make chef less stupid
-node.save
-
 platform_options = node["swift"]["platform"]
 git_service = get_access_endpoint("swift-management-server","swift","ring-repo")
 
