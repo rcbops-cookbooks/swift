@@ -8,10 +8,10 @@ recipe            "swift::object-server", "Installs the swift object server"
 recipe            "swift::proxy-server", "Installs the swift proxy server"
 recipe            "swift::container-server", "Installs the swift container server"
 
-%w{ ubuntu fedora }.each do |os|
+%w{ubuntu fedora}.each do |os|
   supports os
 end
 
-%w{ osops-utils dsh keystone }.each do |dep|
+%w{osops-utils dsh keystone collectd-graphite}.each do |dep|
   depends dep
 end

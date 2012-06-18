@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 include_recipe "osops-utils"
+include_recipe "collectd-graphite::collectd-client"
 
 # This should be in the base collectd package...
 package "libpython2.7" do
