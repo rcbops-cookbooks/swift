@@ -85,3 +85,5 @@ cron "swift-recon" do
   command "swift-recon-cron /etc/swift/object-server.conf"
   user "swift"
 end
+
+include_recipe "swift::object-server-procmon"
