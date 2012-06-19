@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: common-monitoring
+# Recipe:: management-server-monitoring
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -16,16 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-include_recipe "osops-utils"
+
 include_recipe "collectd-graphite::collectd-client"
 
-# This should be in the base collectd package...
-package "libpython2.7" do
-  action :install
-end
-
-cookbook_file File.join(node["collectd"]["plugin_dir"], "swift_stats.py") do
-  source "swift_stats.py"
+cookbook_file File.join(node["collectd"]["plugin_dir"],"cluster_stats.py") do
+  source "cluster_stats.py"
   owner "root"
   group "root"
   mode "0644"
@@ -33,4 +28,4 @@ cookbook_file File.join(node["collectd"]["plugin_dir"], "swift_stats.py") do
   notifies :restart, resources(:service => "collectd"), :delayed
 end
 
-collectd_python_plugin "swift_stats"
+collectd_python_plugin "cluster_stats"
