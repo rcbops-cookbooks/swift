@@ -18,7 +18,10 @@
 
 platform_options = node["swift"]["platform"]
 
-if node["enable_monit"]
+if node["enable_monit"] and
+    File.exists?("/etc/swift/object-server.conf") and
+    File.exists?("/etc/swift/object.ring.gz")
+
   include_recipe "monit::server"
 
   %w{swift-object swift-object-replicator swift-object-auditor swift-object-updater}.each do |svc|
