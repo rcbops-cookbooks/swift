@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: swift-proxy-server
+# Recipe:: proxy-server
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -29,15 +29,14 @@ platform_options = node["swift"]["platform"]
 
 # set up repo for osops, in case we want swift-informant
 # need to push upstreams to package this
-if node["platform"] == "ubuntu" and node["swift"]["use_informant"]
-      apt_repository "osops" do
-      uri "http://ppa.launchpad.net/osops-packaging/ppa/ubuntu"
-      distribution node["lsb"]["codename"]
-      components ["main"]
-      keyserver "keyserver.ubuntu.com"
-      key "53E8EA35"
-      notifies :run, resources(:execute => "apt-get update"), :immediately
-  end
+apt_repository "osops" do
+  uri "http://ppa.launchpad.net/osops-packaging/ppa/ubuntu"
+  distribution node["lsb"]["codename"]
+  components ["main"]
+  keyserver "keyserver.ubuntu.com"
+  key "53E8EA35"
+  notifies :run, resources(:execute => "apt-get update"), :immediately
+  only_if { node["platform"] == "ubuntu" and node["swift"]["use_informant"] }
 end
 
 # install platform-specific packages
@@ -192,3 +191,5 @@ template "/etc/swift/proxy-server.conf" do
             )
   notifies :restart, resources(:service => "swift-proxy"), :immediately
 end
+
+include_recipe "swift::proxy-server-procmon"
