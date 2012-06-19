@@ -18,7 +18,10 @@
 
 platform_options = node["swift"]["platform"]
 
-if node["enable_monit"]
+if node["enable_monit"] and
+    File.exists?("/etc/swift/account-server.conf") and
+    File.exists?("/etc/swift/account.ring.gz")
+
   include_recipe "monit::server"
 
   %w{swift-account swift-account-auditor swift-account-reaper swift-account-replicator}.each do |svc|

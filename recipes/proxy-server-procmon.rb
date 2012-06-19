@@ -18,7 +18,10 @@
 
 platform_options = node["swift"]["platform"]
 
-if node["enable_monit"]
+if node["enable_monit"] and
+    File.exists?("/etc/swift/proxy-server.conf") and
+    File.exists?("/etc/swift/object.ring.gz")
+
   include_recipe "monit::server"
 
   %w{swift-proxy}.each do |svc|
