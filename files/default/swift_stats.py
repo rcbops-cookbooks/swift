@@ -84,7 +84,7 @@ def read_callback():
         else:
             # must be a hash
             for subvalue in value.keys():
-                path = 'sockets.%s.%s' % (key, subvalue)
+                path = '%s.%s' % (key, subvalue)
                 val = collectd.Values(plugin=path)
                 val.type = 'gauge'
                 val.values = [int(value[subvalue])]
