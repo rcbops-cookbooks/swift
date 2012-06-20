@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: swift-management-server
+# Recipe:: management-server
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -18,6 +18,7 @@
 #
 
 include_recipe "swift::common"
+
 #include_recipe "swift::proxy-server"  # this is really only necessary for swauth.
 
 # FIXME: This should probably be a role (ring-builder?), so you don't end up
@@ -71,8 +72,12 @@ template "/etc/swift/dispersion.conf" do
   mode "0600"
   variables("auth_url" => keystone["auth_url"],
             "auth_user" => keystone["admin_user"],
-            "auth_key" => keystone["users"][auth_user]["password"])
+            "auth_key" => keystone["users"][keystone["admin_user"]]["password"])
 
   only_if "swift-recon --objmd5 | grep -q '0 error'"
   notifies :run, "execute[populate-dispersion]", :immediately
+end
+
+if get_settings_by_role("collectd-server", "roles") and node["roles"].include?("collectd-client")
+  include_recipe "swift::management-server-monitoring"
 end

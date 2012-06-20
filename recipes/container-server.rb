@@ -48,7 +48,6 @@ end
   end
 end
 
-
 %w{swift-container swift-container-auditor swift-container-replicator swift-container-updater}.each do |svc|
   service svc do
     service_name platform_options["service_prefix"] + svc + platform_options["service_suffix"]
@@ -75,3 +74,4 @@ template "/etc/swift/container-server.conf" do
   notifies :restart, "service[swift-container-auditor]", :immediately
 end
 
+include_recipe "swift::container-server-procmon"

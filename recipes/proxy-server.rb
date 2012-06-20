@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: swift-proxy-server
+# Recipe:: proxy-server
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -17,6 +17,7 @@
 # limitations under the License.
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
+include_recipe "apt"
 include_recipe "swift::common"
 include_recipe "swift::memcached"
 include_recipe "osops-utils"
@@ -25,6 +26,18 @@ include_recipe "osops-utils"
 node.set_unless['swift']['service_pass'] = secure_password
 
 platform_options = node["swift"]["platform"]
+
+# set up repo for osops, in case we want swift-informant
+# need to push upstreams to package this
+apt_repository "osops" do
+  uri "http://ppa.launchpad.net/osops-packaging/ppa/ubuntu"
+  distribution node["lsb"]["codename"]
+  components ["main"]
+  keyserver "keyserver.ubuntu.com"
+  key "53E8EA35"
+  notifies :run, resources(:execute => "apt-get update"), :immediately
+  only_if { node["platform"] == "ubuntu" and node["swift"]["use_informant"] }
+end
 
 # install platform-specific packages
 platform_options["proxy_packages"].each do |pkg|
@@ -37,6 +50,11 @@ end
 package "python-swauth" do
   action :upgrade
   only_if { node["swift"]["authmode"] == "swauth" }
+end
+
+package "python-swift-informant" do
+  action :upgrade
+  only_if { node["swift"]["use_informant"] }
 end
 
 package "python-keystone" do
@@ -55,7 +73,7 @@ end
 
 # Find all our endpoint info
 
-
+statsd_endpoint = get_access_endpoint("graphite", "statsd", "statsd")
 memcache_endpoints = get_realserver_endpoints("swift-proxy-server",
                                             "swift", "memcache")
 
@@ -77,14 +95,15 @@ if node["swift"]["authmode"] == "keystone"
   keystone = get_settings_by_role("keystone", "keystone")
 
   # FIXME: use get_access_endpoint
-  api_ipaddress=IPManagement.get_access_ip_for_role("keystone", "swift-lb", node)
+  ks_admin = get_access_endpoint("keystone","keystone","admin-api")
+  ks_service = get_access_endpoint("keystone","keystone","service-api")
 
   # Register Service Tenant
   keystone_register "Register Service Tenant" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"            # FIXME: bad smell
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     tenant_description "Service Tenant"
@@ -94,10 +113,10 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Service User
   keystone_register "Register Service User" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["service_user"]
@@ -108,10 +127,10 @@ if node["swift"]["authmode"] == "keystone"
 
   ## Grant Admin role to Service User for Service Tenant ##
   keystone_register "Grant 'admin' Role to Service User for Service Tenant" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["service_user"]
@@ -121,10 +140,10 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Storage Service
   keystone_register "Register Storage Service" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     service_name "swift"
     service_type "object-store"
@@ -134,10 +153,10 @@ if node["swift"]["authmode"] == "keystone"
 
   # Register Storage Endpoint
   keystone_register "Register Storage Endpoint" do
-    auth_host api_ipaddress
-    auth_port keystone["admin_port"]
-    auth_protocol "http"
-    api_ver "/v2.0"
+    auth_host ks_admin["host"]
+    auth_port ks_admin["port"]
+    auth_protocol ks_admin["scheme"]
+    api_ver ks_admin["path"]
     auth_token keystone["admin_token"]
     service_type "object-store"
     endpoint_region "RegionOne"
@@ -156,18 +175,21 @@ template "/etc/swift/proxy-server.conf" do
   variables("authmode" => node["swift"]["authmode"],
             "bind_host" => proxy_bind["host"],
             "bind_port" => proxy_bind["port"],
-            "keystone_api_ipaddress" => api_ipaddress,
-            "keystone_service_port" => keystone["service_port"],
-            "keystone_admin_port" => keystone["admin_port"],
+            "keystone_api_ipaddress" => ks_admin["host"],
+            "keystone_service_port" => ks_service["port"],
+            "keystone_admin_port" => ks_admin["port"],
             "service_tenant_name" => node["swift"]["service_tenant_name"],
             "service_user" => node["swift"]["service_user"],
             "service_pass" => node["swift"]["service_pass"],
             "memcache_servers" => memcache_servers,
             "bind_host" => proxy_bind["host"],
             "bind_port" => proxy_bind["port"],
-            "memcache_servers" => memcache_servers,
-            "cluster_endpoint" => "#{proxy_access['uri']}/v1"
+            "cluster_endpoint" => proxy_access["uri"],
+            "use_informant" => node["swift"]["use_informant"],
+            "statsd_host" => statsd_endpoint["host"],
+            "statsd_port" => statsd_endpoint["port"]
             )
   notifies :restart, resources(:service => "swift-proxy"), :immediately
 end
 
+include_recipe "swift::proxy-server-procmon"

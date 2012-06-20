@@ -1,3 +1,5 @@
+default["enable_monit"] = false
+
 # valid: :swauth or :keystone
 default["swift"]["authmode"] = "swauth"
 default["swift"]["audit_hour"] = "5"
@@ -10,7 +12,12 @@ default["swift"]["service_user"] = "swift"
 #default["swift"]["service_pass"] = "tYPvpd5F"
 default["swift"]["service_role"] = "admin"
 
-# not ready to move to these yet
+# should we use swift-informant?
+# we'll default this to off until we get upstream
+# packages from distros.  You can still use it, just be aware
+# it gets packages from the osops ppa
+default["swift"]["use_informant"] = false
+
 default["swift"]["services"]["proxy"]["scheme"] = "http"
 default["swift"]["services"]["proxy"]["network"] = "swift-public"
 default["swift"]["services"]["proxy"]["port"] = 8080
@@ -79,7 +86,7 @@ when "ubuntu"
     "account_packages" => ["swift-account"],
     "swift_packages" => ["swift"],
     "swauth_packages" => ["swauth"],
-    "rsync_packages" => ["rsyncd"],
+    "rsync_packages" => ["rsync"],
     "git_packages" => ["git-daemon-sysvinit"],
     "memcached_config_file" => "/etc/memcached.conf",
     "service_prefix" => "",
@@ -90,4 +97,3 @@ when "ubuntu"
     "override_options" => "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
   }
 end
-

@@ -40,7 +40,7 @@ bind_ip = <%= @bind_host %>
 bind_port = <%= @bind_port %>
 
 [pipeline:main]
-pipeline = catch_errors healthcheck cache ratelimit <%= pipeline %> proxy-server
+pipeline = <% if @use_informant %>informant <% end %>catch_errors healthcheck cache ratelimit <%= pipeline %> proxy-server
 
 [app:proxy-server]
 use = egg:swift#proxy
@@ -79,6 +79,24 @@ use = egg:swift#proxy
 allow_account_management = <%= account_management %>
 <% if @authmode == "keystone" -%>
 account_autocreate = true
+<% end %>
+
+<% if @use_informant %>
+[filter:informant]
+use = egg:informant#informant
+# statsd_host = 127.0.0.1
+# statsd_port = 8125
+# standard statsd sample rate 0.0 <= 1
+# statsd_sample_rate = 0.5
+# list of allowed methods, all others will generate a "BAD_METHOD" event
+# valid_http_methods = GET,HEAD,POST,PUT,DELETE,COPY
+# send multiple statsd events per packet as supported by statsdpy
+# combined_events = no
+# prepends name to metric collection output for easier recognition, e.g. company.swift.
+# metric_name_prepend =
+#####
+statsd_host = <%= @statsd_host %>
+statsd_port = <%= @statsd_port %>
 <% end %>
 
 [filter:swauth]

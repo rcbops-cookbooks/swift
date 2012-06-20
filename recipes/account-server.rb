@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: swift-account-server
+# Recipe:: account-server
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -74,3 +74,4 @@ template "/etc/swift/account-server.conf" do
   notifies :restart, "service[swift-account-replicator]", :immediately
 end
 
+include_recipe "swift::account-server-procmon"
