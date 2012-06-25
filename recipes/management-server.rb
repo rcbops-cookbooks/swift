@@ -18,6 +18,7 @@
 #
 
 include_recipe "swift::common"
+include_recipe "monitoring"
 
 #include_recipe "swift::proxy-server"  # this is really only necessary for swauth.
 
@@ -78,6 +79,8 @@ template "/etc/swift/dispersion.conf" do
   notifies :run, "execute[populate-dispersion]", :immediately
 end
 
-if get_settings_by_role("collectd-server", "roles") and node["roles"].include?("collectd-client")
-  include_recipe "swift::management-server-monitoring"
+# Monitor cluster stats
+monitoring_metric "swift-cluster-stats" do
+  type "pyscript"
+  script "cluster_stats.py"
 end
