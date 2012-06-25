@@ -49,14 +49,22 @@ end
 end
 
 %w{swift-object swift-object-replicator swift-object-auditor swift-object-updater}.each do |svc|
-  service svc do
-    service_name platform_options["service_prefix"] + svc + platform_options["service_suffix"]
+  service_name=platform_options["service_prefix"] + svc + platform_options["service_suffix"]
 
+  service svc do
+    service_name service_name
     provider platform_options["service_provider"]
     # the default ubuntu provider uses invoke-rc.d, which apparently is
     # status-illy broken in ubuntu
     supports :status => false, :restart => true
     action [:enable, :start]
+    only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
+  end
+
+  monitoring_procmon svc do
+    process_name "python.*#{svc}"
+    start_cmd "/usr/sbin/service #{service_name} start"
+    stop_cmd "/usr/sbin/service #{service_name} stop"
     only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
   end
 end
@@ -85,5 +93,3 @@ cron "swift-recon" do
   command "swift-recon-cron /etc/swift/object-server.conf"
   user "swift"
 end
-
-include_recipe "swift::object-server-procmon"

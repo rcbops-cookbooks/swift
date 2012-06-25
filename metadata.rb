@@ -12,6 +12,6 @@ recipe            "swift::container-server", "Installs the swift container serve
   supports os
 end
 
-%w{osops-utils dsh keystone collectd-graphite apt monit sysctl}.each do |dep|
+%w{osops-utils dsh keystone collectd-graphite apt monitoring sysctl}.each do |dep|
   depends dep
 end

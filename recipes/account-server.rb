@@ -49,11 +49,19 @@ end
 end
 
 %w{swift-account swift-account-auditor swift-account-reaper swift-account-replicator}.each do |svc|
+  service_name = platform_options["service_prefix"] + svc + platform_options["service_suffix"]
   service svc do
-    service_name platform_options["service_prefix"] + svc + platform_options["service_suffix"]
+    service_name service_name
     provider platform_options["service_provider"]
     supports :status => true, :restart => true
     action [:enable, :start]
+    only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"
+  end
+
+  monitoring_procmon svc do
+    process_name "python.*#{svc}"
+    start_cmd "/usr/sbin/service #{service_name} start"
+    stop_cmd "/usr/sbin/service #{service_name} stop"
     only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"
   end
 end
@@ -73,5 +81,3 @@ template "/etc/swift/account-server.conf" do
   notifies :restart, "service[swift-account-reaper]", :immediately
   notifies :restart, "service[swift-account-replicator]", :immediately
 end
-
-include_recipe "swift::account-server-procmon"
