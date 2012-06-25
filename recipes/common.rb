@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 include_recipe "osops-utils"
+include_recipe "monitoring"
 
 class Chef::Recipe
   include DriveUtils
@@ -87,9 +88,60 @@ template "/etc/sudoers.d/swift" do
   action :nothing
 end
 
+monitoring_metric "swift-common-stats" do
+  type "pyscript"
+  script "swift_stats.py"
+end
 
-if get_settings_by_role("collectd-server", "roles") and node["roles"].include?("collectd-client")
-  include_recipe "swift::common-monitoring"
+# we want disk thresholds... probably just on OS and swift disks...
+devices = (node["swift"]["state"]["devs"] || {}).inject([]) { |ary, (k,v)| ary << v["mountpoint"] }
+
+# devices.each do |device|
+#   monitoring_metric "#{device}" do
+#     type "disk"
+#     warning_du node["swift"]["monitoring"]["used_warning"]
+#     alarm_du node["swift"]["monitoring"]["used_failure"]
+#     mountpoint "/srv/nodes/#{device}"
+
+#     action [ :alert, :monitor ]
+#   end
+# end
+
+# devices.each do |device|
+#   collectd_threshold "df-#{device}" do
+#     options("plugin_df" => {
+#               "type_df" => {
+#                 :instance => "srv-node-#{device}",
+#                 :data_source => "used",
+#                 :warning_max => node["swift"]["monitoring"]["used_warning"],
+#                 :failure_max => node["swift"]["monitoring"]["used_failure"],
+#                 :percentage => true
+#               }
+#             })
+#   end
+# end
+
+# # FIXME: base role probably? Need to LWSP monitoring first.
+# collectd_threshold "disk-space" do
+#   options("plugin_df" => {
+#             "type_df" => {
+#               :data_source => "used",
+#               :warning_max => node["swift"]["monitoring"]["other_warning"],
+#               :failure_max => node["swift"]["monitoring"]["other_failure"],
+#               :percentage => true
+#             }
+#           })
+# end
+
+
+########
+# These are a bunch of base monitors that should go...
+# in "base".  For right now, I'll hang them here
+
+%W{syslog cpu disk interface memory swap load}.each do |metric|
+  monitoring_metric metric do
+    type metric
+  end
 end
 
 

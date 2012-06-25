@@ -62,13 +62,26 @@ package "python-keystone" do
   only_if { node["swift"]["authmode"] == "keystone" }
 end
 
+swift_proxy_service = platform_options["service_prefix"] + "swift-proxy" + platform_options["service_suffix"]
 service "swift-proxy" do
   # openstack-swift-proxy.service on fedora-17, swift-proxy on ubuntu
-  service_name platform_options["service_prefix"] + "swift-proxy" + platform_options["service_suffix"]
+  service_name swift_proxy_service
   provider platform_options["service_provider"]
   supports :status => true, :restart => true
   action [ :enable, :start ]
   only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
+end
+
+monitoring_procmon "swift-proxy" do
+  process_name "python.*swift-proxy.*"
+  start_cmd "/usr/sbin/service #{swift_proxy_service} start"
+  stop_cmd "/usr/sbin/service #{swift_proxy_service} stop"
+  only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
+end
+
+monitoring_metric "swift-proxy" do
+  type "proc"
+  proc_regex "python.*swift-proxy.*"
 end
 
 # Find all our endpoint info
@@ -191,5 +204,3 @@ template "/etc/swift/proxy-server.conf" do
             )
   notifies :restart, resources(:service => "swift-proxy"), :immediately
 end
-
-include_recipe "swift::proxy-server-procmon"

@@ -1,5 +1,3 @@
-default["enable_monit"] = false
-
 # valid: :swauth or :keystone
 default["swift"]["authmode"] = "swauth"
 default["swift"]["audit_hour"] = "5"
@@ -57,6 +55,18 @@ default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ 
 default["osops_networks"]["mapping"]["swift-lb"] = "public"
 default["osops_networks"]["mapping"]["swift-private"] = "swift"
 default["osops_networks"]["mapping"]["swift-public"] = "public"
+
+
+# attributes for monitoring
+
+# disk space percentage used before warning/error
+default["swift"]["monitoring"]["used_warning"] = 80
+default["swift"]["monitoring"]["used_failure"] = 85
+
+# other (non-swift) disk space before warning/error
+default["swift"]["monitoring"]["other_warning"] = 80
+default["swift"]["monitoring"]["other_failure"] = 95
+
 
 # Leveling between distros
 case platform
