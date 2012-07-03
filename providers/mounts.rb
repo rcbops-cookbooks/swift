@@ -80,7 +80,7 @@ action :ensure_exists do
   end
 
   # fstab entries that don't need to be there anymore
-  (fstabs.keys - valid_mounts).each do |dev|
+  (fstabs.keys.select {|k| k.start_with? path}  - valid_mounts).each do |dev|
     fe = Chef::Util::FileEdit.new("/etc/fstab")
     fe.search_file_delete_line(Regexp.new(dev.gsub("/","\/")))
     fe.write_file
