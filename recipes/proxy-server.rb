@@ -86,7 +86,15 @@ end
 
 # Find all our endpoint info
 
-statsd_endpoint = get_access_endpoint("graphite", "statsd", "statsd")
+# if swift is configured to use monitoring then get the endpoint.  If it is
+# not then we need to fake the endpoint so the template for proxy-server.conf
+# lays down the config file correctly.
+if node["swift"]["use_informant"] then
+    statsd_endpoint = get_access_endpoint("graphite", "statsd", "statsd")
+else
+    statsd_endpoint={host=>"undefined",port=>"undefined"}
+end
+
 memcache_endpoints = get_realserver_endpoints("swift-proxy-server",
                                             "swift", "memcache")
 
