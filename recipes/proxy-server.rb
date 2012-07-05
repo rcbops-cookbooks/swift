@@ -92,7 +92,7 @@ end
 if node["swift"]["use_informant"] then
     statsd_endpoint = get_access_endpoint("graphite", "statsd", "statsd")
 else
-    statsd_endpoint={host=>"undefined",port=>"undefined"}
+    statsd_endpoint={"host"=>"undefined","port"=>"undefined"}
 end
 
 memcache_endpoints = get_realserver_endpoints("swift-proxy-server",
