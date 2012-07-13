@@ -47,7 +47,6 @@ default["swift"]["services"]["ring-repo"]["path"] = "/rings"
 # formatting.
 default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ /hd[^a]/ or candidate =~ /vd[^a]/",
                                          "File.exist?('/dev/' + candidate)",
-                                         "not system('/sbin/sfdisk -V /dev/' + candidate + '> /dev/null 2>&1')",
                                          "info['removable'] = 0"
                                        ]
 
