@@ -36,7 +36,7 @@ apt_repository "osops" do
   keyserver "keyserver.ubuntu.com"
   key "53E8EA35"
   notifies :run, resources(:execute => "apt-get update"), :immediately
-  only_if { node["platform"] == "ubuntu" and node["swift"]["use_informant"] }
+  only_if { node["platform"] == "ubuntu" }
 end
 
 # install platform-specific packages
