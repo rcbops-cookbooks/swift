@@ -1,6 +1,8 @@
 #
+# Cookbook Name:: swift
+# Library:: drive_utils
 #
-# Copyright 2012, Rackspace Hosting
+# Copyright 2012, Rackspace Hosting, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +17,7 @@
 # limitations under the License.
 #
 # Author: Ron Pedde <ron.pedde@rackspace.com>
+#
 
 module DriveUtils
   def locate_disks(enum_expression, filter_expressions)
