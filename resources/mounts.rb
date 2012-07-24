@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# Author: Ron Pedde <ron.pedde@rackspace.com>
+#
 
 =begin
   Ensure that swift mounts are strongly enforced.  This
