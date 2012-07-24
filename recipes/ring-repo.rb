@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+#
 # This recipe creates a git ring repository on the management node
 # for purposes of ring synchronization
 #

@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: swift-object-server
+# Recipe:: object-server
 #
 # Copyright 2012, Rackspace Hosting
 #

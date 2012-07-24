@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Recipe:: swift-common
+# Recipe:: common
 #
 # Copyright 2012, Rackspace Hosting
 #
@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 include_recipe "osops-utils"
 include_recipe "monitoring"
 
