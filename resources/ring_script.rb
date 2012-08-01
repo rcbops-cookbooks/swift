@@ -1,7 +1,4 @@
 #
-# Cookbook Name:: swift
-# Resource:: ring_script
-#
 # Copyright 2012, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
