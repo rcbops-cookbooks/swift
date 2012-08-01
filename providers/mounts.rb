@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: swift
-# Resource:: mounts
+# Provider:: mounts
 #
 # Copyright 2012, Rackspace US, Inc.
 #

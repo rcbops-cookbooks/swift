@@ -1,4 +1,7 @@
 #
+# Cookbook Name:: swift
+# Resource:: mounts
+#
 # Copyright 2012, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
