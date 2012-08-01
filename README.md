@@ -164,8 +164,9 @@ License and Author
 ====
 
 Author:: Ron Pedde (<ron.pedde@rackspace.com>)
-Author::  Will Kelly (<will.kelly@rackspace.com>)
-Copyright:: 2012, Rackspace Hosting
+Author:: Will Kelly (<will.kelly@rackspace.com>)
+
+Copyright:: 2012, Rackspace US, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
