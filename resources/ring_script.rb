@@ -1,5 +1,5 @@
 #
-# Copyright 2012, Rackspace Hosting
+# Copyright 2012, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,6 +42,3 @@ attribute :owner,                  :kind_of => String, :default => "root"
 attribute :group,                  :kind_of => String, :default => "root"
 attribute :mode,                   :kind_of => String, :default => "0600"
 attribute :ring_path,              :kind_of => String, :default => "/etc/swift"
-
-
-
