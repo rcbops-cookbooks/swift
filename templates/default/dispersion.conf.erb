@@ -1,7 +1,8 @@
 [dispersion]
 auth_url = <%= @auth_url %>
-auth_user = <%= @auth_user %>
+auth_user = <%= @auth_tenant %>:<%= @auth_user %>
 auth_key = <%= @auth_key %>
+auth_version = 2.0
 # swift_dir = /etc/swift
 # dispersion_coverage = 1
 # retries = 5
