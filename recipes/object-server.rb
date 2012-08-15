@@ -67,6 +67,14 @@ end
     stop_cmd "/usr/sbin/service #{service_name} stop"
     only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
   end
+
+  monitoring_metric "#{svc}-proc" do
+    type "proc"
+    proc_name svc
+    proc_regex "python.*#{svc}"
+
+    alarms(:failure_min => 2.0)
+  end
 end
 
 object_endpoint = get_bind_endpoint("swift","object-server")
