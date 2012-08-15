@@ -43,6 +43,15 @@ service "rsync" do
   only_if "[ -f /etc/rsyncd.conf ]"
 end
 
+monitoring_metric "rysnc" do
+  type "proc"
+  proc_name "rsync"
+  proc_regex "rsync"
+
+  alarms(:failure_min => 0.0)
+end
+
+
 template "/etc/rsyncd.conf" do
   source "rsyncd.conf.erb"
   mode "0644"
@@ -56,5 +65,3 @@ execute "enable rsync" do
   action :run
   not_if { platform?(%w{fedora}) }
 end
-
-
