@@ -70,7 +70,7 @@ end
     proc_name svc
     proc_regex "python.*#{svc}"
 
-    alarms(:failure_min => 2.0)
+    alarms(:failure_min => 1.0)
   end
 end
 
