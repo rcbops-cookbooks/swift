@@ -84,7 +84,7 @@ monitoring_metric "swift-proxy-proc" do
   proc_name "swift-proxy"
   proc_regex "python.*swift-proxy.*"
 
-  alarms(:failure_min => 2.0)
+  alarms(:failure_min => 1.0)
 end
 
 # Find all our endpoint info

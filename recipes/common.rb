@@ -91,7 +91,13 @@ end
 monitoring_metric "swift-common-stats" do
   type "pyscript"
   script "swift_stats.py"
+  alarms("Plugin_unmounts" => {
+          "Type_gauge" => {
+            :data_source => "value",
+            :failure_max => 0.0 }})
 end
+
+
 
 # README(shep): disk usage thresholds are performed by hardware::common
 # devices = (node["swift"]["state"]["devs"] || {}).inject([]) { |ary, (k,v)| ary << v["mountpoint"] }
