@@ -130,7 +130,7 @@ use = egg:swift#memcache
 # commas, as in: 10.1.2.3:11211,10.1.2.4:11211
 # memcache_servers = 127.0.0.1:11211
 #####
-memcache_servers = <%= @memcache_servers.collect {|x| "#{x}"}.join(",") %>
+memcache_servers = <%= @memcache_servers.join(",") %>
 
 [filter:ratelimit]
 use = egg:swift#ratelimit
@@ -251,3 +251,4 @@ auth_uri = http://<%= @keystone_api_ipaddress %>:<%= @keystone_admin_port %>/
 admin_tenant_name = <%= @service_tenant_name %>
 admin_user = <%= @service_user %>
 admin_password = <%= @service_pass %>
+delay_auth_decision = true
