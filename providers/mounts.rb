@@ -121,8 +121,8 @@ action :ensure_exists do
       options "noatime,nodiratime,nobarrier,logbufs=8"
       dump 0
       fstype "xfs"
+      action :nothing
     end
-    mt.run_action(:enable)
 
     if not fstabs.has_key?(mount_path)
       # then its a brand-new drive, freshly formatted
