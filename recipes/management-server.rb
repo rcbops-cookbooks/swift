@@ -78,7 +78,7 @@ end
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["dispersion_service_user"]
-    role_name node["swift"]["dispersion_service_role"]
+    role_name node["swift"]["service_role"]
     action :grant_role
   end
 
