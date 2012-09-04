@@ -107,4 +107,13 @@ end
 monitoring_metric "swift-cluster-stats" do
   type "pyscript"
   script "cluster_stats.py"
+  alarms("Plugin_md5sums" => {
+           "Type_gauge" => {
+             :data_source => "value",
+             :failure_max => 0.0}},
+         "Plugin_replication_times.longest" => {
+           "Type_gauge" => {
+             :data_source => "value",
+             :failure_max => 3600}})
+  
 end
