@@ -26,6 +26,10 @@ end
 platform_options = node["swift"]["platform"]
 git_service = get_access_endpoint("swift-management-server","swift","ring-repo")
 
+if platform?("centos","redhat","scientific")
+  include_recipe "yum::epel"
+end
+
 platform_options["swift_packages"].each do |pkg|
   package pkg do
     action :upgrade

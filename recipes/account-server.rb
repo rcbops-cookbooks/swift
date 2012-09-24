@@ -60,8 +60,7 @@ end
 
   monitoring_procmon svc do
     process_name "python.*#{svc}"
-    start_cmd "/usr/sbin/service #{service_name} start"
-    stop_cmd "/usr/sbin/service #{service_name} stop"
+    script_name service_name
     only_if "[ -e /etc/swift/account-server.conf ] && [ -e /etc/swift/account.ring.gz ]"
   end
 

@@ -46,7 +46,7 @@ default["swift"]["services"]["ring-repo"]["path"] = "/rings"                # no
 # Each predicate is evaluated in turn, and a false from the predicate
 # will result in the disk not being considered as a candidate for
 # formatting.
-default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ /hd[^a]/ or candidate =~ /vd[^a]/",
+default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ /hd[^a]/ or candidate =~ /vd[^a]/ or candidate =~ /xvd[^a]/",
                                          "File.exist?('/dev/' + candidate)",
                                          "info['removable'] = 0"
                                        ]                                    # cluster_attribute
@@ -72,8 +72,47 @@ default["swift"]["monitoring"]["other_failure"] = 95                        # no
 
 # Leveling between distros
 case platform
+when "redhat"
+  default["swift"]["platform"] = {					    # node_attribute
+    "disk_format" => "ext4",
+    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie"],
+    "object_packages" => ["openstack-swift-object", "sudo", "cronie"],
+    "container_packages" => ["openstack-swift-container", "sudo", "cronie"],
+    "account_packages" => ["openstack-swift-account", "sudo", "cronie"],
+    "swift_packages" => ["openstack-swift", "sudo", "cronie"],
+    "swauth_packages" => ["openstack-swauth", "sudo", "cronie"],
+    "rsync_packages" => ["rsync"],
+    "git_packages" => ["xinetd", "git", "git-daemon"],
+    "memcached_config_file" => "/etc/sysconfig/memcached",
+    "service_prefix" => "openstack-",
+    "service_suffix" => "",
+    "git_dir" => "/var/lib/git",
+    "git_service" => "git",
+    "service_provider" => Chef::Provider::Service::Redhat,
+    "override_options" => ""
+  }
+when "centos"
+  default["swift"]["platform"] = {					    # node_attribute
+    "disk_format" => "xfs",
+    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie"],
+    "object_packages" => ["openstack-swift-object", "sudo", "cronie"],
+    "container_packages" => ["openstack-swift-container", "sudo", "cronie"],
+    "account_packages" => ["openstack-swift-account", "sudo", "cronie"],
+    "swift_packages" => ["openstack-swift", "sudo", "cronie"],
+    "swauth_packages" => ["openstack-swauth", "sudo", "cronie"],
+    "rsync_packages" => ["rsync"],
+    "git_packages" => ["xinetd", "git", "git-daemon"],
+    "memcached_config_file" => "/etc/sysconfig/memcached",
+    "service_prefix" => "openstack-",
+    "service_suffix" => "",
+    "git_dir" => "/var/lib/git",
+    "git_service" => "git",
+    "service_provider" => Chef::Provider::Service::Redhat,
+    "override_options" => ""
+  }
 when "fedora"
   default["swift"]["platform"] = {                                          # node_attribute
+    "disk_format" => "xfs",
     "proxy_packages" => ["openstack-swift-proxy"],
     "object_packages" => ["openstack-swift-object"],
     "container_packages" => ["openstack-swift-container"],
@@ -92,6 +131,7 @@ when "fedora"
   }
 when "ubuntu"
   default["swift"]["platform"] = {                                          # node_attribute
+    "disk_format" => "xfs",
     "proxy_packages" => ["swift-proxy"],
     "object_packages" => ["swift-object"],
     "container_packages" => ["swift-container"],
