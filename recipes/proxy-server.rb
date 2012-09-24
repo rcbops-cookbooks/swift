@@ -17,7 +17,6 @@
 # limitations under the License.
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
-include_recipe "apt"
 include_recipe "swift::common"
 include_recipe "swift::memcached"
 include_recipe "osops-utils"
@@ -26,18 +25,6 @@ include_recipe "osops-utils"
 node.set_unless['swift']['service_pass'] = secure_password
 
 platform_options = node["swift"]["platform"]
-
-# set up repo for osops, in case we want swift-informant
-# need to push upstreams to package this
-apt_repository "osops" do
-  uri "http://ppa.launchpad.net/osops-packaging/ppa/ubuntu"
-  distribution node["lsb"]["codename"]
-  components ["main"]
-  keyserver "keyserver.ubuntu.com"
-  key "53E8EA35"
-  notifies :run, resources(:execute => "apt-get update"), :immediately
-  only_if { node["platform"] == "ubuntu" }
-end
 
 # install platform-specific packages
 platform_options["proxy_packages"].each do |pkg|
@@ -73,9 +60,8 @@ service "swift-proxy" do
 end
 
 monitoring_procmon "swift-proxy" do
-  process_name "python.*swift-proxy.*"
-  start_cmd "/usr/sbin/service #{swift_proxy_service} start"
-  stop_cmd "/usr/sbin/service #{swift_proxy_service} stop"
+process_name "python.*swift-proxy.*"
+  script_name swift_proxy_service
   only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
 end
 

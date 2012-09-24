@@ -37,6 +37,7 @@ action :ensure_exists do
     info = {}
     info["device"] = device
     info["ip"] = @new_resource.ip
+    info["format"] = @new_resource.format
     info["uuid"] = `blkid /dev/#{device} -s UUID -o value`.strip
     info["mountpoint"] = info["uuid"].split("-").join("")
     info["mounted"] = system("mount | grep '#{path}/#{info["mountpoint"]}\'")
@@ -49,7 +50,7 @@ action :ensure_exists do
 
   Chef::Log.info("Physical Inventory:")
   dev_info.each do |_,v|
-    Chef::Log.info("Device: #{v['device']}, UUID: #{v['uuid']}, Mounted: #{v['mounted']}")
+    Chef::Log.info("Device: #{v['device']}, UUID: #{v['uuid']}, Mounted: #{v['mounted']}, Format: #{v['format']}")
   end
 
   # make sure we have a "path"
@@ -115,12 +116,19 @@ action :ensure_exists do
       recursive true
     end.run_action(:create)
 
+    case info['format']
+    when 'ext4'
+      mount_options = "noatime,nodiratime,nobarrier"
+    when 'xfs'
+      mount_options = "noatime,nodiratime,nobarrier,logbufs=8"
+    end
+      
     mt = Mount(mount_path) do
       device info['uuid']
       device_type :uuid
-      options "noatime,nodiratime,nobarrier,logbufs=8"
+      options mount_options
       dump 0
-      fstype "xfs"
+      fstype info['format']
       action :nothing
     end
 
