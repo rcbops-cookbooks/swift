@@ -36,26 +36,51 @@ cookbook_file "/etc/systemd/system/rsync.service" do
   only_if { platform?(%w{fedora}) }
 end
 
+# rhel based systems install rsync and run it with rsync.  We don't want to do that
+cookbook_file "/etc/init.d/rsyncd" do
+  owner "root"
+  group "root"
+  mode "0755"
+  source "rsync.init"
+  action :create
+  only_if { platform?(%w{centos redhat scientific}) }
+end
+
 # FIXME: chicken and egg
-service "rsync" do
-  supports :status => false, :restart => true
-  action [ :enable, :start ]
-  only_if "[ -f /etc/rsyncd.conf ]"
+case node["platform"]
+when "centos","redhat","fedora"
+  # enable rsyncd
+  rsync_servicename = "rsyncd"
+  service "rsyncd" do
+    supports :status => false, :restart => true, :start => true, :stop => true
+    action [ :enable, :start ]
+    only_if "[ -f /etc/rsyncd.conf ]"
+  end
+  # disable rsync (the one via xinetd)
+  service "rsync" do
+    supports :status => false, :restart => false, :start => false, :stop => false
+    action [ :disable ]
+  end
+when "ubuntu","debian"
+  rsync_servicename = "rsync"
+  service "rsync" do
+    supports :status => false, :restart => true
+    action [ :enable, :start ]
+    only_if "[ -f /etc/rsyncd.conf ]"
+  end
 end
 
 monitoring_metric "rysnc" do
   type "proc"
   proc_name "rsync"
   proc_regex "rsync"
-
   alarms(:failure_min => 0.0)
 end
-
 
 template "/etc/rsyncd.conf" do
   source "rsyncd.conf.erb"
   mode "0644"
-  notifies :restart, resources(:service => "rsync"), :immediately
+  notifies :restart, resources(:service => rsync_servicename), :immediately
 end
 
 execute "enable rsync" do
@@ -63,5 +88,5 @@ execute "enable rsync" do
   only_if "grep -q 'RSYNC_ENABLE=false' /etc/default/rsync"
   notifies :restart, resources(:service => "rsync"), :immediately
   action :run
-  not_if { platform?(%w{fedora}) }
+  not_if { platform?(%w{fedora centos redhat scientific}) }
 end

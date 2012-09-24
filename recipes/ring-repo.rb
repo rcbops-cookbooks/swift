@@ -29,6 +29,12 @@ platform_options["git_packages"].each do |pkg|
   end
 end
 
+service "xinetd" do
+  supports :status => false, :restart => true
+  action [ :enable, :start ]
+  only_if { platform?(%w{centos redhat fedora}) }
+end
+
 execute "create empty git repo" do
   cwd "/tmp"
   umask 022
@@ -72,9 +78,17 @@ template "/etc/systemd/system/git.service" do
   only_if { platform?(%w{fedora}) }
 end
 
-service "git-daemon" do
-  service_name platform_options["git_service"]
-  action [ :enable, :start ]
+case node["platform"]
+when "centos","redhat","fedora"
+  service "git-daemon" do
+    service_name platform_options["git_service"]
+    action [ :enable ]
+  end
+when "ubuntu","debian"
+  service "git-daemon" do
+    service_name platform_options["git_service"]
+    action [ :enable, :start ]
+  end
 end
 
 cookbook_file "/etc/default/git-daemon" do
@@ -84,7 +98,7 @@ cookbook_file "/etc/default/git-daemon" do
   source "git-daemon.default"
   action :create
   notifies :restart, resources(:service => "git-daemon"), :immediately
-  not_if { platform?(%w{fedora}) }
+  not_if { platform?(%w{fedora centos redhat}) }
 end
 
 directory "/etc/swift/ring-workspace" do

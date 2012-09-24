@@ -68,3 +68,4 @@ attribute :name,               :kind_of => String
 attribute :devices,            :kind_of => Array
 attribute :ip,                 :kind_of => String, :default => "127.0.0.1"
 attribute :publish_attributes, :kind_of => String, :default => nil
+attribute :format,             :kind_of => String, :default => "xfs"

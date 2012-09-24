@@ -20,8 +20,14 @@
 # Inspired by: Andi Abes @ Dell
 
 include_recipe "osops-utils"
+platform_options = node["swift"]["platform"]
 
-%w(xfsprogs parted util-linux).each do |pkg|
+package "xfsprogs" do
+  action :upgrade
+  only_if { platform?(%w{ubuntu debian fedora}) }
+end
+
+%w(parted util-linux).each do |pkg|
   package pkg do
     action :upgrade
   end
@@ -32,7 +38,7 @@ disks = locate_disks(node["swift"]["disk_enum_expr"],
 
 disks.each do |disk|
   swift_disk "/dev/#{disk}" do
-    part [{:type => "xfs", :size => :remaining}]
+    part [{:type => platform_options["disk_format"] , :size => :remaining}]
     action :ensure_exists
   end
 end
@@ -49,5 +55,6 @@ swift_mounts "/srv/node" do
   publish_attributes "swift/state/devs"
   devices disks.collect { |x| "#{x}1" }
   ip disk_ip
+  format platform_options["disk_format"]
 end
 

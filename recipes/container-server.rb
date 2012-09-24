@@ -52,17 +52,17 @@ end
   service_name=platform_options["service_prefix"] + svc + platform_options["service_suffix"]
 
   service svc do
-    service_name = service_name
+    service_name service_name
     provider platform_options["service_provider"]
     supports :status => true, :restart => true
     action [:enable, :start]
     only_if "[ -e /etc/swift/container-server.conf ] && [ -e /etc/swift/container.ring.gz ]"
   end
 
+
   monitoring_procmon svc do
     process_name "python.*#{svc}"
-    start_cmd "/usr/sbin/service #{service_name} start"
-    stop_cmd "/usr/sbin/service #{service_name} stop"
+    script_name service_name
     only_if "[ -e /etc/swift/container-server.conf ] && [ -e /etc/swift/container.ring.gz ]"
   end
 
