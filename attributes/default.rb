@@ -73,7 +73,7 @@ default["swift"]["monitoring"]["other_failure"] = 95                        # no
 # Leveling between distros
 case platform
 when "redhat"
-  default["swift"]["platform"] = {					    # node_attribute
+  default["swift"]["platform"] = {                      # node_attribute
     "disk_format" => "ext4",
     "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie"],
     "object_packages" => ["openstack-swift-object", "sudo", "cronie"],
@@ -92,7 +92,7 @@ when "redhat"
     "override_options" => ""
   }
 when "centos"
-  default["swift"]["platform"] = {					    # node_attribute
+  default["swift"]["platform"] = {                      # node_attribute
     "disk_format" => "xfs",
     "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie"],
     "object_packages" => ["openstack-swift-object", "sudo", "cronie"],

@@ -103,6 +103,7 @@ end
 # devices = (node["swift"]["state"]["devs"] || {}).inject([]) { |ary, (k,v)| ary << v["mountpoint"] }
 
 # Sysctl tuning
+include_recipe "sysctl::default"
 sysctl_multi "swift" do
   instructions("net.ipv4.tcp_tw_reuse" => "1",
                "net.ipv4.ip_local_port_range" => "10000 61000",
