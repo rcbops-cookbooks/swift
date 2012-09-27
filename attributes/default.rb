@@ -48,7 +48,7 @@ default["swift"]["services"]["ring-repo"]["path"] = "/rings"                # no
 # formatting.
 default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ /hd[^a]/ or candidate =~ /vd[^a]/ or candidate =~ /xvd[^a]/",
                                          "File.exist?('/dev/' + candidate)",
-                                         "info['removable'] = 0"
+                                         "info['removable'] == 0.to_s"
                                        ]                                    # cluster_attribute
 
 # some attributes to control where network interfaces are laid down
