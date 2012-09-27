@@ -24,7 +24,7 @@ platform_options = node["swift"]["platform"]
 
 package "xfsprogs" do
   action :upgrade
-  only_if { platform?(%w{ubuntu debian fedora}) }
+  only_if { platform?(%w{ubuntu debian fedora centos}) }
 end
 
 %w(parted util-linux).each do |pkg|
