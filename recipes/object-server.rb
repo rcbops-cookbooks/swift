@@ -48,6 +48,23 @@ end
   end
 end
 
+# TODO(breu): track against upstream epel packages to determine if this
+# is still necessary
+%w{auditor updater replicator}.each do |svc|
+  template "/etc/init.d/openstack-swift-object-#{svc}" do
+    owner "root"
+    group "root"
+    mode "0755"
+    source "simple-redhat-init-config.erb"
+    variables({ :description => "OpenStack Object Storage (swift) - " +
+                "Object #{svc.capitalize}",
+                :user => "swift",
+                :exec => "object-#{svc}"
+              })
+    only_if { platform?(%w{redhat centos}) }
+  end
+end
+
 %w{swift-object swift-object-replicator swift-object-auditor swift-object-updater}.each do |svc|
   service_name=platform_options["service_prefix"] + svc + platform_options["service_suffix"]
 
