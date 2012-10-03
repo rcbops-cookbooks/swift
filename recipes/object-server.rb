@@ -48,6 +48,8 @@ end
   end
 end
 
+# TODO(breu): track against upstream epel packages to determine if this
+# is still necessary
 %w{auditor updater replicator}.each do |svc|
   template "/etc/init.d/openstack-swift-object-#{svc}" do
     owner "root"
