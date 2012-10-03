@@ -118,7 +118,7 @@ action :ensure_exists do
 
     case info['format']
     when 'ext4'
-      mount_options = "noatime,nodiratime,nobarrier"
+      mount_options = "noatime,nodiratime,nobarrier,user_xattr"
     when 'xfs'
       mount_options = "noatime,nodiratime,nobarrier,logbufs=8"
     end
