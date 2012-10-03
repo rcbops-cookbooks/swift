@@ -48,6 +48,21 @@ end
   end
 end
 
+%w{auditor reaper replicator}.each do |svc|
+  template "/etc/init.d/openstack-swift-account-#{svc}" do
+    owner "root"
+    group "root"
+    mode "0755"
+    source "simple-redhat-init-config.erb"
+    variables({ :description => "OpenStack Object Storage (swift) - " +
+                "Account #{svc.capitalize}",
+                :user => "swift",
+                :exec => "account-#{svc}"
+              })
+    only_if { platform?(%w{redhat centos}) }
+  end
+end
+
 %w{swift-account swift-account-auditor swift-account-reaper swift-account-replicator}.each do |svc|
   service_name = platform_options["service_prefix"] + svc + platform_options["service_suffix"]
   service svc do
