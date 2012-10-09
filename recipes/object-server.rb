@@ -50,6 +50,7 @@ end
 
 # TODO(breu): track against upstream epel packages to determine if this
 # is still necessary
+# https://bugzilla.redhat.com/show_bug.cgi?id=807170
 %w{auditor updater replicator}.each do |svc|
   template "/etc/init.d/openstack-swift-object-#{svc}" do
     owner "root"
