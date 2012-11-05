@@ -135,7 +135,7 @@ when "ubuntu"
     "proxy_packages" => ["swift-proxy"],
     "object_packages" => ["swift-object"],
     "container_packages" => ["swift-container"],
-    "account_packages" => ["swift-account"],
+    "account_packages" => ["swift-account", "python-swiftclient"],
     "swift_packages" => ["swift"],
     "swauth_packages" => ["swauth"],
     "rsync_packages" => ["rsync"],
