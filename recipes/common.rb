@@ -23,7 +23,19 @@ class Chef::Recipe
   include DriveUtils
 end
 
-platform_options = node["swift"]["platform"]
+if not node['package_component'].nil?
+    release = node['package_component']
+else
+    release = "essex-final"
+end
+
+case node['platform']
+when "redhat", "centos", "fedora"
+  platform_options = node["swift"]["platform"]
+when "ubuntu"
+  platform_options = node["swift"]["platform"][release]
+end
+
 git_service = get_access_endpoint("swift-management-server","swift","ring-repo")
 
 platform_options["swift_packages"].each do |pkg|

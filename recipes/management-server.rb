@@ -30,7 +30,18 @@ include_recipe "swift::ring-repo"
 # Apply hot patches for dispersion populate and report interop with keystone
 include_recipe "swift::swift-dispersion-patch"
 
-platform_options = node["swift"]["platform"]
+if not node['package_component'].nil?
+    release = node['package_component']
+else
+    release = "essex-final"
+end
+
+case node['platform']
+when "redhat", "centos", "fedora"
+  platform_options = node["swift"]["platform"]
+when "ubuntu"
+  platform_options = node["swift"]["platform"][release]
+end
 
 dsh_group "swift-storage" do
   admin_user "root"
@@ -115,5 +126,5 @@ monitoring_metric "swift-cluster-stats" do
            "Type_gauge" => {
              :data_source => "value",
              :failure_max => 3600}})
-  
+
 end
