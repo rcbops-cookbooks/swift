@@ -131,12 +131,30 @@ when "fedora"
     "override_options" => ""
   }
 when "ubuntu"
-  default["swift"]["platform"] = {                                          # node_attribute
+  default["swift"]["platform"]["essex-final"] = {                                          # node_attribute
     "disk_format" => "xfs",
     "proxy_packages" => ["swift-proxy"],
     "object_packages" => ["swift-object"],
     "container_packages" => ["swift-container"],
     "account_packages" => ["swift-account"],
+    "swift_packages" => ["swift"],
+    "swauth_packages" => ["swauth"],
+    "rsync_packages" => ["rsync"],
+    "git_packages" => ["git-daemon-sysvinit"],
+    "memcached_config_file" => "/etc/memcached.conf",
+    "service_prefix" => "",
+    "service_suffix" => "",
+    "git_dir" => "/var/cache/git",
+    "git_service" => "git-daemon",
+    "service_provider" => Chef::Provider::Service::Upstart,
+    "override_options" => "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
+  }
+  default["swift"]["platform"]["folsom"] = {                                          # node_attribute
+    "disk_format" => "xfs",
+    "proxy_packages" => ["swift-proxy"],
+    "object_packages" => ["swift-object"],
+    "container_packages" => ["swift-container"],
+    "account_packages" => ["swift-account", "python-swiftclient"],
     "swift_packages" => ["swift"],
     "swauth_packages" => ["swauth"],
     "rsync_packages" => ["rsync"],
