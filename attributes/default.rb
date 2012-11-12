@@ -92,15 +92,18 @@ when "redhat"
     "service_provider" => Chef::Provider::Service::Redhat,
     "override_options" => ""
   }
+#
+# python-iso8601 is a missing dependency for swift.
+# https://bugzilla.redhat.com/show_bug.cgi?id=875948
 when "centos"
   default["swift"]["platform"] = {                      # node_attribute
     "disk_format" => "xfs",
-    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie"],
-    "object_packages" => ["openstack-swift-object", "sudo", "cronie"],
-    "container_packages" => ["openstack-swift-container", "sudo", "cronie"],
-    "account_packages" => ["openstack-swift-account", "sudo", "cronie"],
-    "swift_packages" => ["openstack-swift", "sudo", "cronie"],
-    "swauth_packages" => ["openstack-swauth", "sudo", "cronie"],
+    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie", "python-iso8601" ],
+    "object_packages" => ["openstack-swift-object", "sudo", "cronie", "python-iso8601" ],
+    "container_packages" => ["openstack-swift-container", "sudo", "cronie", "python-iso8601" ],
+    "account_packages" => ["openstack-swift-account", "sudo", "cronie", "python-iso8601" ],
+    "swift_packages" => ["openstack-swift", "sudo", "cronie", "python-iso8601" ],
+    "swauth_packages" => ["openstack-swauth", "sudo", "cronie", "python-iso8601" ],
     "rsync_packages" => ["rsync"],
     "git_packages" => ["xinetd", "git", "git-daemon"],
     "memcached_config_file" => "/etc/sysconfig/memcached",
