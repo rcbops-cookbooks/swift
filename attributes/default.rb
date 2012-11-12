@@ -92,6 +92,9 @@ when "redhat"
     "service_provider" => Chef::Provider::Service::Redhat,
     "override_options" => ""
   }
+#
+# python-iso8601 is a missing dependency for swift.
+# https://bugzilla.redhat.com/show_bug.cgi?id=875948
 when "centos"
   default["swift"]["platform"] = {                      # node_attribute
     "disk_format" => "xfs",
