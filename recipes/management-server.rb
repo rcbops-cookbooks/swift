@@ -54,7 +54,7 @@ keystone = get_settings_by_role("keystone", "keystone")
 keystone_auth_url = "http://#{ks_admin_endpoint["host"]}:#{ks_service_endpoint["port"]}/v2.0/"
 
 # Register Service Tenant
-keystone_register "Register Service Tenant" do
+keystone_tenant "Create Service Tenant" do
   auth_host ks_admin_endpoint["host"]
   auth_port ks_admin_endpoint["port"]
   auth_protocol ks_admin_endpoint["scheme"]
@@ -63,11 +63,11 @@ keystone_register "Register Service Tenant" do
   tenant_name node["swift"]["service_tenant_name"]
   tenant_description "Service Tenant"
   tenant_enabled "true" # Not required as this is the default
-  action :create_tenant
+  action :create
 end
 
 # Register Service User
-keystone_register "Register Service User" do
+keystone_user "Create Service User" do
   auth_host ks_admin_endpoint["host"]
   auth_port ks_admin_endpoint["port"]
   auth_protocol ks_admin_endpoint["scheme"]
@@ -77,11 +77,11 @@ keystone_register "Register Service User" do
   user_name node["swift"]["dispersion_service_user"]
   user_pass node["swift"]["dispersion_service_pass"]
   user_enabled "true" # Not required as this is the default
-  action :create_user
+  action :create
 end
 
  ## Grant Admin role to Service User for Service Tenant ##
-  keystone_register "Grant 'admin' Role to Service User for Service Tenant" do
+  keystone_role "Grant 'admin' Role to Service User for Service Tenant" do
     auth_host ks_admin_endpoint["host"]
     auth_port ks_admin_endpoint["port"]
     auth_protocol ks_admin_endpoint["scheme"]
@@ -90,7 +90,7 @@ end
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["dispersion_service_user"]
     role_name node["swift"]["service_role"]
-    action :grant_role
+    action :grant
   end
 
 # dispersion tools only work right now with swauth auth

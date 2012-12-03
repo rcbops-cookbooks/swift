@@ -120,7 +120,7 @@ if node["swift"]["authmode"] == "keystone"
   ks_service = get_access_endpoint("keystone","keystone","service-api")
 
   # Register Service Tenant
-  keystone_register "Register Service Tenant" do
+  keystone_tenant "Create Service Tenant" do
     auth_host ks_admin["host"]
     auth_port ks_admin["port"]
     auth_protocol ks_admin["scheme"]
@@ -129,11 +129,11 @@ if node["swift"]["authmode"] == "keystone"
     tenant_name node["swift"]["service_tenant_name"]
     tenant_description "Service Tenant"
     tenant_enabled "true" # Not required as this is the default
-    action :create_tenant
+    action :create
   end
 
   # Register Service User
-  keystone_register "Register Service User" do
+  keystone_user "Create Service User" do
     auth_host ks_admin["host"]
     auth_port ks_admin["port"]
     auth_protocol ks_admin["scheme"]
@@ -143,11 +143,11 @@ if node["swift"]["authmode"] == "keystone"
     user_name node["swift"]["service_user"]
     user_pass node["swift"]["service_pass"]
     user_enabled "true" # Not required as this is the default
-    action :create_user
+    action :create
   end
 
   ## Grant Admin role to Service User for Service Tenant ##
-  keystone_register "Grant 'admin' Role to Service User for Service Tenant" do
+  keystone_role "Grant 'admin' Role to Service User for Service Tenant" do
     auth_host ks_admin["host"]
     auth_port ks_admin["port"]
     auth_protocol ks_admin["scheme"]
@@ -156,11 +156,11 @@ if node["swift"]["authmode"] == "keystone"
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["service_user"]
     role_name node["swift"]["service_role"]
-    action :grant_role
+    action :grant
   end
 
   # Register Storage Service
-  keystone_register "Register Storage Service" do
+  keystone_service "Create Storage Service" do
     auth_host ks_admin["host"]
     auth_port ks_admin["port"]
     auth_protocol ks_admin["scheme"]
@@ -169,11 +169,11 @@ if node["swift"]["authmode"] == "keystone"
     service_name "swift"
     service_type "object-store"
     service_description "Swift Object Storage Service"
-    action :create_service
+    action :create
   end
 
   # Register Storage Endpoint
-  keystone_register "Register Storage Endpoint" do
+  keystone_endpoint "Register Storage Endpoint" do
     auth_host ks_admin["host"]
     auth_port ks_admin["port"]
     auth_protocol ks_admin["scheme"]
@@ -184,7 +184,7 @@ if node["swift"]["authmode"] == "keystone"
     endpoint_adminurl "#{proxy_access['uri']}/AUTH_%(tenant_id)s"
     endpoint_internalurl "#{proxy_access['uri']}/AUTH_%(tenant_id)s"
     endpoint_publicurl "#{proxy_access['uri']}/AUTH_%(tenant_id)s"
-    action :create_endpoint
+    action :create
   end
 end
 
