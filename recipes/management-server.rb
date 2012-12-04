@@ -30,17 +30,11 @@ include_recipe "swift::ring-repo"
 # Apply hot patches for dispersion populate and report interop with keystone
 include_recipe "swift::swift-dispersion-patch"
 
-if not node['package_component'].nil?
-    release = node['package_component']
-else
-    release = "essex-final"
-end
-
 case node['platform']
 when "redhat", "centos", "fedora"
   platform_options = node["swift"]["platform"]
 when "ubuntu"
-  platform_options = node["swift"]["platform"][release]
+  platform_options = node["swift"]["platform"][node['package_component']]
 end
 
 dsh_group "swift-storage" do
