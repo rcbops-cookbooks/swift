@@ -18,17 +18,11 @@
 #
 
 
-if not node['package_component'].nil?
-    release = node['package_component']
-else
-    release = "essex-final"
-end
-
 case node['platform']
 when "redhat", "centos", "fedora"
   platform_options = node["swift"]["platform"]
 when "ubuntu"
-  platform_options = node["swift"]["platform"][release]
+  platform_options = node["swift"]["platform"][node['package_component']]
 end
 
 bind_address = get_bind_endpoint("swift","memcache")["host"]
