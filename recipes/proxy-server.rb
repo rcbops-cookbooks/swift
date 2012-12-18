@@ -21,8 +21,19 @@ include_recipe "swift::common"
 include_recipe "swift::memcached"
 include_recipe "osops-utils"
 
-# Set a secure keystone service password
-node.set_unless['swift']['service_pass'] = secure_password
+# search to see if there are any pre-existing swift proxy role holders
+# and use their password, rather than setting our own.
+# Else if we are the first, set the password here
+
+if other_proxy = get_settings_by_role('swift-proxy-server', 'swift', false)
+  node.set['swift']['service_pass'] = other_proxy['service_pass']
+  node.save
+  Chef::Log.debug("getting swift service pass from other proxy node")
+else
+  # Set a secure keystone service password
+  node.set_unless['swift']['service_pass'] = secure_password
+  Chef::Log.debug("I am the first swift proxy node - setting service pass myself")
+end
 
 case node['platform']
 when "redhat", "centos", "fedora"
