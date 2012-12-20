@@ -76,7 +76,7 @@ case platform
 when "redhat"
   default["swift"]["platform"] = {                      # node_attribute
     "disk_format" => "ext4",
-    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie"],
+    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie", "python-memcached"],
     "object_packages" => ["openstack-swift-object", "sudo", "cronie"],
     "container_packages" => ["openstack-swift-container", "sudo", "cronie"],
     "account_packages" => ["openstack-swift-account", "sudo", "cronie"],
