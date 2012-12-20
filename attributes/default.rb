@@ -48,7 +48,7 @@ default["swift"]["services"]["ring-repo"]["path"] = "/rings"                # no
 # formatting.
 default["swift"]["disk_test_filter"] = [ "candidate =~ /sd[^a]/ or candidate =~ /hd[^a]/ or candidate =~ /vd[^a]/ or candidate =~ /xvd[^a]/",
                                          "File.exist?('/dev/' + candidate)",
-					 "not system('/sbin/parted /dev/' + candidate + ' -s print | grep linux-swap')",
+                                         "not system('/sbin/parted /dev/' + candidate + ' -s print | grep linux-swap')",
                                          "info['removable'] == 0.to_s"
                                        ]                                    # cluster_attribute
 
@@ -98,7 +98,7 @@ when "redhat"
 when "centos"
   default["swift"]["platform"] = {                      # node_attribute
     "disk_format" => "xfs",
-    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie", "python-iso8601" ],
+    "proxy_packages" => ["openstack-swift-proxy", "sudo", "cronie", "python-iso8601", "python-memcached" ],
     "object_packages" => ["openstack-swift-object", "sudo", "cronie", "python-iso8601" ],
     "container_packages" => ["openstack-swift-container", "sudo", "cronie", "python-iso8601" ],
     "account_packages" => ["openstack-swift-account", "sudo", "cronie", "python-iso8601" ],
@@ -117,7 +117,7 @@ when "centos"
 when "fedora"
   default["swift"]["platform"] = {                                          # node_attribute
     "disk_format" => "xfs",
-    "proxy_packages" => ["openstack-swift-proxy"],
+    "proxy_packages" => ["openstack-swift-proxy", "python-memcached"],
     "object_packages" => ["openstack-swift-object"],
     "container_packages" => ["openstack-swift-container"],
     "account_packages" => ["openstack-swift-account"],
@@ -136,7 +136,7 @@ when "fedora"
 when "ubuntu"
   default["swift"]["platform"]["essex-final"] = {                                          # node_attribute
     "disk_format" => "xfs",
-    "proxy_packages" => ["swift-proxy"],
+    "proxy_packages" => ["swift-proxy", "python-memcache"],
     "object_packages" => ["swift-object"],
     "container_packages" => ["swift-container"],
     "account_packages" => ["swift-account"],
@@ -154,7 +154,7 @@ when "ubuntu"
   }
   default["swift"]["platform"]["folsom"] = {                                          # node_attribute
     "disk_format" => "xfs",
-    "proxy_packages" => ["swift-proxy"],
+    "proxy_packages" => ["swift-proxy", "python-memcache"],
     "object_packages" => ["swift-object"],
     "container_packages" => ["swift-container"],
     "account_packages" => ["swift-account", "python-swiftclient"],
