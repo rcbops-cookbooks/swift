@@ -29,13 +29,13 @@ when "ubuntu"
 end
 
 package "xfsprogs" do
-  action :upgrade
+  action :install
   only_if { platform?(%w{ubuntu debian fedora centos}) }
 end
 
 %w(parted util-linux).each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
   end
 end
 
