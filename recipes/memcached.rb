@@ -34,7 +34,7 @@ else
 end
 
 package "memcached" do
-  action :upgrade
+  action :install
   options platform_options["override_options"]
 end
 

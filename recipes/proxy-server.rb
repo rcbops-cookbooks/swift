@@ -45,23 +45,23 @@ end
 # install platform-specific packages
 platform_options["proxy_packages"].each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
     options platform_options["override_options"]
   end
 end
 
 package "python-swauth" do
-  action :upgrade
+  action :install
   only_if { node["swift"]["authmode"] == "swauth" }
 end
 
 package "python-swift-informant" do
-  action :upgrade
+  action :install
   only_if { node["swift"]["use_informant"] }
 end
 
 package "python-keystone" do
-  action :upgrade
+  action :install
   only_if { node["swift"]["authmode"] == "keystone" }
 end
 
