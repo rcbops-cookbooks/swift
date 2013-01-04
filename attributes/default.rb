@@ -22,7 +22,7 @@ default["swift"]["use_informant"] = false                                   # cl
 default["swift"]["services"]["proxy"]["scheme"] = "http"                    # node_attribute
 default["swift"]["services"]["proxy"]["network"] = "swift-public"           # node_attribute (inherited from cluster?)
 default["swift"]["services"]["proxy"]["port"] = 8080                        # node_attribute (inherited from cluster?)
-default["swift"]["services"]["proxy"]["path"] = "/v1"                       # node_attribute
+default["swift"]["services"]["proxy"]["path"] = "/v1/AUTH_%(tenant_id)s"                       # node_attribute
 
 default["swift"]["services"]["object-server"]["network"] = "swift"          # node_attribute (inherited from cluster?)
 default["swift"]["services"]["object-server"]["port"] = 6000                # node_attribute (inherited from cluster?)
