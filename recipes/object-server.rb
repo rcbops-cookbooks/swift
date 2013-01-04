@@ -30,7 +30,7 @@ end
 
 platform_options["object_packages"].each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
     options platform_options["override_options"] # retain configs
   end
 end
