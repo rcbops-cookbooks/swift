@@ -29,12 +29,12 @@ else
   else
     setup = search(:node, "chef_environment:#{node.chef_environment} AND roles:swift-setup")
     if setup.length == 0
-      Chef::Application.fatal! "You must have run the swift::setup recipe on one node already in order to be a swift-proxy server"
+      Chef::Application.fatal! "You must have run the swift::setup recipe (on this or another node) before running the swift::proxy recipe on this node"
     elsif setup.length == 1
       Chef::Log.info "Found swift::setup node: #{setup[0].name}"
       node.set["swift"]["service_pass"] = setup[0]["swift"]["service_pass"]
     elsif setup.length >1
-      Chef::Application.fatal! "You have specified more than one swift setup node and this is not a valid configuration."
+      Chef::Application.fatal! "You have multiple nodes in your environment that have run swift-setup, and that is not allowed"
     end
   end
 end
