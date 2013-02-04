@@ -39,9 +39,8 @@ end
   end
 end
 
-# dup these since a copy in chef 11 is still read only
-disk_enum_expr = node["swift"]["disk_enum_expr"].dup
-disk_test_filter = node["swift"]["disk_test_filter"].dup
+disk_enum_expr = node["swift"]["disk_enum_expr"]
+disk_test_filter = node["swift"]["disk_test_filter"]
 
 disks = locate_disks(disk_enum_expr, disk_test_filter)
 
