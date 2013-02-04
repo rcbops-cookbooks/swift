@@ -39,8 +39,8 @@ end
   end
 end
 
-disk_enum_expr = node["swift"]["disk_enum_expr"]
-disk_test_filter = node["swift"]["disk_test_filter"]
+disk_enum_expr = node["swift"]["disk_enum_expr"].dup
+disk_test_filter = node["swift"]["disk_test_filter"].dup
 
 disks = locate_disks(disk_enum_expr, disk_test_filter)
 
