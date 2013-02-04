@@ -39,8 +39,11 @@ end
   end
 end
 
-disks = locate_disks(node["swift"]["disk_enum_expr"],
-                     node["swift"]["disk_test_filter"])
+# dup these since a copy in chef 11 is still read only
+disk_enum_expr = node["swift"]["disk_enum_expr"].dup
+disk_test_filter = node["swift"]["disk_test_filter"].dup
+
+disks = locate_disks(disk_enum_expr, disk_test_filter)
 
 disks.each do |disk|
   swift_disk "/dev/#{disk}" do
