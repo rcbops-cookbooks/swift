@@ -21,10 +21,12 @@
 
 module DriveUtils
   def locate_disks(enum_expression, filter_expressions)
-    candidate_disks = Marshal.load(Marshal.dump(eval(enum_expression)))
+    candidate_disks = eval(enum_expression)
     candidate_expression = "candidate_disks.select{|candidate,info| (" +
       filter_expressions.map{|x| "(#{x})"}.join(" and ") + ")}"
-    drives = Hash[eval(candidate_expression)].dup
+    # fix the = back to ==
+    candidate_expression.gsub!(/ = /, "==")
+    drives = Hash[eval(candidate_expression)]
     Chef::Log.info("Using candidate drives: #{drives.keys.join(", ")}")
     drives.keys
   end
