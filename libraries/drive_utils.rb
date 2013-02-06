@@ -21,7 +21,7 @@
 
 module DriveUtils
   def locate_disks(enum_expression, filter_expressions)
-    candidate_disks = eval(enum_expression)
+    candidate_disks = Marshal.load(Marshal.dump(eval(enum_expression)))
     candidate_expression = "candidate_disks.select{|candidate,info| (" +
       filter_expressions.map{|x| "(#{x})"}.join(" and ") + ")}"
     drives = Hash[eval(candidate_expression)].dup
