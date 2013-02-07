@@ -42,8 +42,8 @@ dsh_group "swift-storage" do
   network "swift"
 end
 
-ks_admin_endpoint = get_access_endpoint("keystone", "keystone", "admin-api")
-ks_service_endpoint = get_access_endpoint("keystone", "keystone","service-api")
+ks_admin_endpoint = get_access_endpoint("keystone-api", "keystone", "admin-api")
+ks_service_endpoint = get_access_endpoint("keystone-api", "keystone","service-api")
 keystone = get_settings_by_role("keystone", "keystone")
 keystone_auth_url = "http://#{ks_admin_endpoint["host"]}:#{ks_service_endpoint["port"]}/v2.0/"
 
