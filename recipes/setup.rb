@@ -66,8 +66,8 @@ end
 if node["swift"]["authmode"] == "keystone"
 
   keystone = get_settings_by_role("keystone", "keystone")
-  ks_admin = get_access_endpoint("keystone","keystone","admin-api")
-  ks_service = get_access_endpoint("keystone","keystone","service-api")
+  ks_admin = get_access_endpoint("keystone-api","keystone","admin-api")
+  ks_service = get_access_endpoint("keystone-api","keystone","service-api")
   proxy_access = get_access_endpoint("swift-proxy-server","swift", "proxy")
 
   # Register Service Tenant
