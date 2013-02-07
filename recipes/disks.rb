@@ -39,8 +39,10 @@ end
   end
 end
 
-disks = locate_disks(node["swift"]["disk_enum_expr"],
-                     node["swift"]["disk_test_filter"])
+disk_enum_expr = node["swift"]["disk_enum_expr"]
+disk_test_filter = node["swift"]["disk_test_filter"]
+
+disks = locate_disks(disk_enum_expr, disk_test_filter)
 
 disks.each do |disk|
   swift_disk "/dev/#{disk}" do
