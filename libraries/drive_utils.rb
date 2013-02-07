@@ -24,6 +24,8 @@ module DriveUtils
     candidate_disks = eval(enum_expression)
     candidate_expression = "candidate_disks.select{|candidate,info| (" +
       filter_expressions.map{|x| "(#{x})"}.join(" and ") + ")}"
+    # fix the = back to ==
+    candidate_expression.gsub!(/ = /, "==")
     drives = Hash[eval(candidate_expression)]
     Chef::Log.info("Using candidate drives: #{drives.keys.join(", ")}")
     drives.keys
