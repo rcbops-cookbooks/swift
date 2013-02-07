@@ -119,8 +119,8 @@ end
 
 proxy_bind = get_bind_endpoint("swift", "proxy")
 proxy_access = get_access_endpoint("swift-proxy-server", "swift", "proxy")
-ks_admin = get_access_endpoint("keystone","keystone","admin-api")
-ks_service = get_access_endpoint("keystone","keystone","service-api")
+ks_admin = get_access_endpoint("keystone-api","keystone","admin-api")
+ks_service = get_access_endpoint("keystone-api","keystone","service-api")
 
 template "/etc/swift/proxy-server.conf" do
   source "proxy-server.conf.erb"
