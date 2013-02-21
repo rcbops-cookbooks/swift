@@ -7,8 +7,8 @@ Requirements
 ====
 
 Client:
- * Ubuntu 11.04
- * Fedora-17 (Soon)
+ * CentOS >= 6.3
+ * Ubuntu >= 12.04
 
 Chef:
  * 0.10.8
@@ -83,8 +83,12 @@ interfaces on particular devices.
 Deps
 ====
 
- * osops-utils (github.com/osops/osops-utils) - used for finding
-   interfaces on particular networks
+ * dsh
+ * keystone
+ * monitoring
+ * openssl
+ * osops-utils
+ * sysctl
 
 Roles
 ====
