@@ -17,35 +17,10 @@
 # limitations under the License.
 #
 
+memcache_info = get_bind_endpoint("swift","memcache")
 
-case node['platform']
-when "redhat", "centos", "fedora"
-  platform_options = node["swift"]["platform"]
-when "ubuntu"
-  platform_options = node["swift"]["platform"][node['package_component']]
-end
+# for the upstream memcached cookbook to use
+node.set["memcached"]["listen"] = memcache_info["host"]
+node.set["memcached"]["port"] = memcache_info["port"]
 
-bind_address = get_bind_endpoint("swift","memcache")["host"]
-
-if platform?(%w{fedora})
-  memcached_sed_command = "'s/OPTIONS.*/OPTIONS=\"-l #{bind_address}\"/'"
-else
-  memcached_sed_command = "'s/^-l .*/-l #{bind_address}/'"
-end
-
-package "memcached" do
-  action :install
-  options platform_options["override_options"]
-end
-
-service "memcached" do
-  supports :status => true, :restart => true
-  action :enable
-end
-
-execute "set listening port" do
-  command "sed -i #{platform_options["memcached_config_file"]} -e #{memcached_sed_command}"
-  not_if "grep -q -- '-l #{bind_address}' #{platform_options["memcached_config_file"]}"
-  notifies :restart, resources(:service => "memcached"), :immediately
-  action :run
-end
+include_recipe "memcached"
