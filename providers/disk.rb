@@ -17,7 +17,7 @@
 #
 
 require 'chef/mixin/shell_out'
-include Chef::Mixin::ShellOut
+include Chef::Mixlib::ShellOut
 
 def load_current_resource
   dev_name = @new_resource.name
@@ -248,12 +248,12 @@ action :ensure_exists do
       case params[:type]
       when "xfs"
         if not system("xfs_admin -l #{device}")
-          Mixin::ShellOut.new("mkfs.xfs -f -i size=512 #{device}").run_command
+          Mixlib::ShellOut.new("mkfs.xfs -f -i size=512 #{device}").run_command
           update = true
         end
       when "ext4"
         if not system("tune2fs -l #{device} | grep \"Filesystem volume name:\" | awk \'{print $4}\' | grep -v \"<none>\"")
-          Mixin::ShellOut.new("mkfs.ext4 #{device}").run_command
+          Mixlib::ShellOut.new("mkfs.ext4 #{device}").run_command
           update = true
         end
       end
