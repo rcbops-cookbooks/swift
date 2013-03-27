@@ -21,7 +21,7 @@ include_recipe "swift::common"
 include_recipe "osops-utils"
 
 # make sure we die if there are multiple swift-setups
-if other_setup = get_settings_by_role("swift-setup", "swift", false)
+if get_role_count("swift-setup", false) > 0
   Chef::Application.fatal! "You can only have one node with the swift-setup role"
 end
 
