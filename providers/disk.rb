@@ -248,12 +248,12 @@ action :ensure_exists do
       case params[:type]
       when "xfs"
         if not system("xfs_admin -l #{device}")
-          Chef::ShellOut.new("mkfs.xfs -f -i size=512 #{device}").run_command
+          Mixlib::ShellOut.new("mkfs.xfs -f -i size=512 #{device}").run_command
           update = true
         end
       when "ext4"
         if not system("tune2fs -l #{device} | grep \"Filesystem volume name:\" | awk \'{print $4}\' | grep -v \"<none>\"")
-          Chef::ShellOut.new("mkfs.ext4 #{device}").run_command
+          Mixlib::ShellOut.new("mkfs.ext4 #{device}").run_command
           update = true
         end
       end
