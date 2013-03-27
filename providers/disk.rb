@@ -17,7 +17,6 @@
 #
 
 require 'chef/mixin/shell_out'
-include Chef::Mixlib::ShellOut
 
 def load_current_resource
   dev_name = @new_resource.name
