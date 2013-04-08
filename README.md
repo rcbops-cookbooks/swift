@@ -1,7 +1,7 @@
 Support
 =======
 
-Issue have been disabled for this repository.  
+Issues have been disabled for this repository.  
 Any issues with this cookbook should be raised here:
 
 [https://github.com/rcbops/chef-cookbooks/issues](https://github.com/rcbops/chef-cookbooks/issues)
