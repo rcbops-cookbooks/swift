@@ -22,12 +22,7 @@ include_recipe "swift::storage-common"
 include_recipe "swift::disks"
 
 
-case node['platform']
-when "redhat", "centos", "fedora"
-  platform_options = node["swift"]["platform"]
-when "ubuntu"
-  platform_options = node["swift"]["platform"][node['package_component']]
-end
+platform_options = node["swift"]["platform"]
 
 platform_options["container_packages"].each do |pkg|
   package pkg do
