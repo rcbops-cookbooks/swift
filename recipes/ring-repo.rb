@@ -21,12 +21,7 @@
 # for purposes of ring synchronization
 #
 
-case node['platform']
-when "redhat", "centos", "fedora"
-  platform_options = node["swift"]["platform"]
-when "ubuntu"
-  platform_options = node["swift"]["platform"][node['package_component']]
-end
+platform_options = node["swift"]["platform"]
 
 platform_options["git_packages"].each do |pkg|
   package pkg do

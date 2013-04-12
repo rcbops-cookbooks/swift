@@ -39,12 +39,7 @@ else
   end
 end
 
-case node['platform']
-when "redhat", "centos", "fedora"
-  platform_options = node["swift"]["platform"]
-when "ubuntu"
-  platform_options = node["swift"]["platform"][node['package_component']]
-end
+platform_options = node["swift"]["platform"]
 
 # install platform-specific packages
 platform_options["proxy_packages"].each do |pkg|
