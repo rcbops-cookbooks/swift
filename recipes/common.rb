@@ -23,12 +23,7 @@ class Chef::Recipe
   include DriveUtils
 end
 
-case node['platform']
-when "redhat", "centos", "fedora"
-  platform_options = node["swift"]["platform"]
-when "ubuntu"
-  platform_options = node["swift"]["platform"][node['package_component']]
-end
+platform_options = node["swift"]["platform"]
 
 git_service = get_access_endpoint("swift-management-server","swift","ring-repo")
 

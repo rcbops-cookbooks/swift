@@ -32,12 +32,7 @@ end
 # Set a secure keystone service password
 node.set_unless['swift']['service_pass'] = secure_password
 
-case node['platform']
-when "redhat", "centos", "fedora"
-  platform_options = node["swift"]["platform"]
-when "ubuntu"
-  platform_options = node["swift"]["platform"][node['package_component']]
-end
+platform_options = node["swift"]["platform"]
 
 # install platform-specific packages
 platform_options["proxy_packages"].each do |pkg|
@@ -79,7 +74,7 @@ if node["swift"]["authmode"] == "keystone"
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     tenant_description "Service Tenant"
-    tenant_enabled "true" # Not required as this is the default
+    tenant_enabled "1" # Not required as this is the default
     action :create
   end
 
@@ -93,7 +88,7 @@ if node["swift"]["authmode"] == "keystone"
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["service_user"]
     user_pass node["swift"]["service_pass"]
-    user_enabled "true" # Not required as this is the default
+    user_enabled "1" # Not required as this is the default
     action :create
   end
 
