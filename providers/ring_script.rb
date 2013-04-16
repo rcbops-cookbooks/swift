@@ -200,7 +200,7 @@ def parse_ring_output(ring_data)
       output[:hosts][$3][$5][:weight] = $6
       output[:hosts][$3][$5][:partitions] = $7
       output[:hosts][$3][$5][:balance] = $8
-    elsif line =~ /(\d+) partitions, (\d+.\d+) replicas, (\d+) regions, (\d+) zones, (\d+) devices, (\d+.\d+) balance$/
+    elsif line =~ /(\d+) partitions, (\d+\.\d+) replicas, (\d+) regions, (\d+) zones, (\d+) devices, (\d+\.\d+) balance$/
       output[:state][:partitions] = $1
       output[:state][:replicas] = $2
       output[:state][:regions] = $3
