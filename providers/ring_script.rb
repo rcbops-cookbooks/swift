@@ -200,12 +200,13 @@ def parse_ring_output(ring_data)
       output[:hosts][$3][$5][:weight] = $6
       output[:hosts][$3][$5][:partitions] = $7
       output[:hosts][$3][$5][:balance] = $8
-    elsif line =~ /(\d+) partitions, (\d+) replicas, (\d+) zones, (\d+) devices, ([\-0-9.]+) balance$/
+    elsif line =~ /(\d+) partitions, (\d+) replicas, (\d+) regions, (\d+) zones, (\d+) devices, ([\-0-9.]+) balance$/
       output[:state][:partitions] = $1
       output[:state][:replicas] = $2
-      output[:state][:zones] = $3
-      output[:state][:devices] = $4
-      output[:state][:balance] = $5
+      output[:state][:regions] = $3
+      output[:state][:zones] = $4
+      output[:state][:devices] = $5
+      output[:state][:balance] = $6
     elsif line =~ /^The minimum number of hours before a partition can be reassigned is (\d+)$/
       output[:state][:min_part_hours] = $1
     else
