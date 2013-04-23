@@ -184,7 +184,7 @@ def parse_ring_output(ring_data)
   ring_data.each do |line|
     if line =~ /build version ([0-9]+)/
       output[:state][:build_version] = $1
-    elsif line =~ /^Devices:\s+id\s+zone\s+/
+    elsif line =~ /^Devices:\s+id\s+region\s+zone\s+/
       next
     elsif line =~ /^\s+(\d+)\s+(\d+)\s+(\d+\.\d+\.\d+\.\d+)\s+(\d+)\s+(\S+)\s+([0-9.]+)\s+(\d+)\s+([-0-9.]+)\s*$/
       output[:hosts] ||= {}
