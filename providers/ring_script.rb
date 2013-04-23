@@ -184,28 +184,30 @@ def parse_ring_output(ring_data)
   ring_data.each do |line|
     if line =~ /build version ([0-9]+)/
       output[:state][:build_version] = $1
-    elsif line =~ /^Devices:\s+id\s+zone\s+/
+    elsif line =~ /^Devices:\s+id\s+region\s+zone\s+/
       next
-    elsif line =~ /^\s+(\d+)\s+(\d+)\s+(\d+\.\d+\.\d+\.\d+)\s+(\d+)\s+(\S+)\s+([0-9.]+)\s+(\d+)\s+([-0-9.]+)\s*$/
+    elsif line =~ /^\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+\.\d+\.\d+)\s+(\d+)\s+(\S+)\s+([0-9.]+)\s+(\d+)\s+([-0-9.]+)\s*$/
       output[:hosts] ||= {}
       output[:hosts][$3] ||= {}
 
       output[:hosts][$3][$5] = {}
 
       output[:hosts][$3][$5][:id] = $1
-      output[:hosts][$3][$5][:zone] = $2
-      output[:hosts][$3][$5][:ip] = $3
-      output[:hosts][$3][$5][:port] = $4
-      output[:hosts][$3][$5][:device] = $5
-      output[:hosts][$3][$5][:weight] = $6
-      output[:hosts][$3][$5][:partitions] = $7
-      output[:hosts][$3][$5][:balance] = $8
-    elsif line =~ /(\d+) partitions, (\d+) replicas, (\d+) zones, (\d+) devices, ([\-0-9.]+) balance$/
+      output[:hosts][$3][$5][:region] = $2
+      output[:hosts][$3][$5][:zone] = $3
+      output[:hosts][$3][$5][:ip] = $4
+      output[:hosts][$3][$5][:port] = $5
+      output[:hosts][$3][$5][:device] = $6
+      output[:hosts][$3][$5][:weight] = $7
+      output[:hosts][$3][$5][:partitions] = $8
+      output[:hosts][$3][$5][:balance] = $9
+    elsif line =~ /(\d+) partitions, (\d+\.\d+) replicas, (\d+) regions, (\d+) zones, (\d+) devices, (\d+\.\d+) balance$/
       output[:state][:partitions] = $1
       output[:state][:replicas] = $2
-      output[:state][:zones] = $3
-      output[:state][:devices] = $4
-      output[:state][:balance] = $5
+      output[:state][:regions] = $3
+      output[:state][:zones] = $4
+      output[:state][:devices] = $5
+      output[:state][:balance] = $6
     elsif line =~ /^The minimum number of hours before a partition can be reassigned is (\d+)$/
       output[:state][:min_part_hours] = $1
     else
