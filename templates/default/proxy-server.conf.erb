@@ -239,7 +239,7 @@ use = egg:swift#tempurl
 use = egg:swift#formpost
 
 [filter:keystone]
-paste.filter_factory = keystone.middleware.swift_auth:filter_factory
+paste.filter_factory = keystone.middleware.auth_token:filter_factory
 operator_roles = Member,admin
 
 [filter:authtoken]
