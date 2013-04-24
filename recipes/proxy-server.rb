@@ -64,6 +64,12 @@ package "python-keystone" do
   only_if { node["swift"]["authmode"] == "keystone" }
 end
 
+directory "/var/cache/swift" do
+  owner "swift"
+  group "swift"
+  mode 0600
+end
+
 swift_proxy_service = platform_options["service_prefix"] + "swift-proxy" + platform_options["service_suffix"]
 service "swift-proxy" do
   # openstack-swift-proxy.service on fedora-17, swift-proxy on ubuntu
