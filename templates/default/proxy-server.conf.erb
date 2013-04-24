@@ -2,7 +2,7 @@
 
 case @authmode
 when "keystone"
-  pipeline="authtoken keystone"
+  pipeline="authtoken keystoneauth"
 when "swauth"
   pipeline="swauth"
 end
@@ -238,9 +238,9 @@ use = egg:swift#tempurl
 [filter:formpost]
 use = egg:swift#formpost
 
-[filter:keystone]
-paste.filter_factory = keystone.middleware.auth_token:filter_factory
+[filter:keystoneauth]
 operator_roles = Member,admin
+use = egg:swift#keystoneauth
 
 [filter:authtoken]
 paste.filter_factory = keystone.middleware.auth_token:filter_factory
@@ -252,4 +252,4 @@ admin_tenant_name = <%= @service_tenant_name %>
 admin_user = <%= @service_user %>
 admin_password = <%= @service_pass %>
 delay_auth_decision = 1
-signing_dir = /tmp/keystone-signing-swift
+signing_dir = /var/cache/swift
