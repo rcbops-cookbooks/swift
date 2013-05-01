@@ -74,7 +74,7 @@ if node["swift"]["authmode"] == "keystone"
     auth_token keystone["admin_token"]
     tenant_name node["swift"]["service_tenant_name"]
     tenant_description "Service Tenant"
-    tenant_enabled "1" # Not required as this is the default
+    tenant_enabled true # Not required as this is the default
     action :create
   end
 
@@ -88,7 +88,7 @@ if node["swift"]["authmode"] == "keystone"
     tenant_name node["swift"]["service_tenant_name"]
     user_name node["swift"]["service_user"]
     user_pass node["swift"]["service_pass"]
-    user_enabled "1" # Not required as this is the default
+    user_enabled true # Not required as this is the default
     action :create
   end
 
