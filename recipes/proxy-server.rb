@@ -145,5 +145,5 @@ template "/etc/swift/proxy-server.conf" do
             "statsd_host" => statsd_endpoint["host"],
             "statsd_port" => statsd_endpoint["port"]
             )
-  notifies :restart, resources(:service => "swift-proxy"), :immediately
+  notifies :restart, "service[swift-proxy]", :immediately
 end
