@@ -80,7 +80,7 @@ end
 template "/etc/rsyncd.conf" do
   source "rsyncd.conf.erb"
   mode "0644"
-  notifies :restart, "service[rsync_#{servicename}]", :immediately
+  notifies :restart, "service[#{rsync_servicename}]", :immediately
 end
 
 execute "enable rsync" do
