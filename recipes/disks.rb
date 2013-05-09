@@ -46,7 +46,8 @@ disks = locate_disks(disk_enum_expr, disk_test_filter)
 
 if disks.length > 0 && node['swift']['autozone']
   Chef::Log.info("Autozone enabled. Checking node zone settings.")
-  autozone = node['ipaddress'].gsub!(/\D/,'')
+  nodeip = node['ipaddress']
+  autozone = nodeip.gsub!(/\D/,'')
   if node['swift'].has_key?('zone') && node['swift']['zone'] == "#{autozone}"
     Chef::Log.info("Zone is already correctly set to: #{autozone}.")
   elsif node['swift'].has_key?('zone') && node['swift']['zone'] != "#{autozone}"
