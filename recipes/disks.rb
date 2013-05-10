@@ -39,6 +39,22 @@ disk_test_filter = node["swift"]["disk_test_filter"]
 
 disks = locate_disks(disk_enum_expr, disk_test_filter)
 
+if disks.length > 0 && node['swift']['autozone'] == true
+  Chef::Log.info("Autozone enabled. Checking node zone settings.")
+  nodeip = node['ipaddress']
+  autozone = nodeip.gsub!(/\D/,'')
+  if node['swift'].has_key?('zone') && node['swift']['zone'] == autozone
+    Chef::Log.info("Zone is already correctly set to: #{autozone}.")
+  elsif node['swift'].has_key?('zone') && node['swift']['zone'] != autozone
+    Chef::Log.info("Zone incorrectly set to: #{node['swift']['zone']}.")
+    Chef::Log.info("Correcting zone to #{autozone}.")
+    node.set['swift']['zone'] = autozone
+  else
+    Chef::Log.info("No zone set yet. Setting zone to: #{autozone}")
+    node.set['swift']['zone'] = autozone
+  end
+end
+
 disks.each do |disk|
   swift_disk "/dev/#{disk}" do
     part [{:type => platform_options["disk_format"] , :size => :remaining}]
