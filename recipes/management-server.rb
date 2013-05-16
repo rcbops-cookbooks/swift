@@ -19,7 +19,6 @@
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 include_recipe "swift::common"
-include_recipe "monitoring"
 
 node.set_unless['swift']['dispersion_service_pass'] = secure_password
 
@@ -101,19 +100,4 @@ template "/etc/swift/dispersion.conf" do
             "auth_key" => node["swift"]["dispersion_service_pass"])
   only_if "swift-recon --objmd5 | grep -q '0 error'"
   notifies :run, "execute[populate-dispersion]", :immediately
-end
-
-# Monitor cluster stats
-monitoring_metric "swift-cluster-stats" do
-  type "pyscript"
-  script "cluster_stats.py"
-  alarms("Plugin_md5sums" => {
-           "Type_gauge" => {
-             :data_source => "value",
-             :failure_max => 0.0}},
-         "Plugin_replication_times.longest" => {
-           "Type_gauge" => {
-             :data_source => "value",
-             :failure_max => 3600}})
-
 end
