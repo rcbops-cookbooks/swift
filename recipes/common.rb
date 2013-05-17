@@ -17,7 +17,6 @@
 # limitations under the License.
 #
 include_recipe "osops-utils"
-include_recipe "monitoring"
 
 class Chef::Recipe
   include DriveUtils
@@ -87,15 +86,6 @@ template "/etc/sudoers.d/swift" do
               :node => node
             })
   action :nothing
-end
-
-monitoring_metric "swift-common-stats" do
-  type "pyscript"
-  script "swift_stats.py"
-  alarms("Plugin_unmounts" => {
-          "Type_gauge" => {
-            :data_source => "value",
-            :failure_max => 0.0 }})
 end
 
 keystone = get_settings_by_role("keystone", "keystone")
