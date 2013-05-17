@@ -39,7 +39,7 @@ end
 
 ks_admin_endpoint = get_access_endpoint("keystone-api", "keystone", "admin-api")
 ks_service_endpoint = get_access_endpoint("keystone-api", "keystone","service-api")
-keystone = get_settings_by_role("keystone", "keystone")
+keystone = get_settings_by_role("keystone-setup", "keystone")
 keystone_auth_url = "http://#{ks_admin_endpoint["host"]}:#{ks_service_endpoint["port"]}/v2.0/"
 
 # Register Service Tenant

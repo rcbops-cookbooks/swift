@@ -98,7 +98,7 @@ monitoring_metric "swift-common-stats" do
             :failure_max => 0.0 }})
 end
 
-keystone = get_settings_by_role("keystone", "keystone")
+keystone = get_settings_by_role("keystone-setup", "keystone")
 ks_service_endpoint = get_access_endpoint("keystone-api", "keystone", "service-api")
 
 template "/root/swift-openrc" do
