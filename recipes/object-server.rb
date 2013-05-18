@@ -78,20 +78,6 @@ end
     action [:enable, :start]
     only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
   end
-
-  monitoring_procmon svc do
-    process_name "python.*#{svc}"
-    script_name service_name
-    only_if "[ -e /etc/swift/object-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
-  end
-
-  monitoring_metric "#{svc}-proc" do
-    type "proc"
-    proc_name svc
-    proc_regex "python.*#{svc}"
-
-    alarms(:failure_min => 1.0)
-  end
 end
 
 object_endpoint = get_bind_endpoint("swift","object-server")
