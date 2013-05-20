@@ -88,7 +88,7 @@ template "/etc/sudoers.d/swift" do
   action :nothing
 end
 
-keystone = get_settings_by_role("keystone", "keystone")
+keystone = get_settings_by_role("keystone-setup", "keystone")
 ks_service_endpoint = get_access_endpoint("keystone-api", "keystone", "service-api")
 
 template "/root/swift-openrc" do
