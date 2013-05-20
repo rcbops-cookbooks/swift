@@ -80,20 +80,6 @@ service "swift-proxy" do
   only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
 end
 
-monitoring_procmon "swift-proxy" do
-process_name "python.*swift-proxy.*"
-  script_name swift_proxy_service
-  only_if "[ -e /etc/swift/proxy-server.conf ] && [ -e /etc/swift/object.ring.gz ]"
-end
-
-monitoring_metric "swift-proxy-proc" do
-  type "proc"
-  proc_name "swift-proxy"
-  proc_regex "python.*swift-proxy.*"
-
-  alarms(:failure_min => 1.0)
-end
-
 # Find all our endpoint info
 
 # if swift is configured to use monitoring then get the endpoint.  If it is

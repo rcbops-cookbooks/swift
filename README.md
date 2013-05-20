@@ -100,7 +100,6 @@ Deps
 
  * dsh
  * keystone
- * monitoring
  * openssl
  * osops-utils
  * sysctl
