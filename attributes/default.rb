@@ -146,6 +146,6 @@ when "ubuntu"
     "git_dir" => "/var/cache/git",
     "git_service" => "git-daemon",
     "service_provider" => Chef::Provider::Service::Upstart,
-    "override_options" => "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
+    "override_options" => "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
   }
 end
