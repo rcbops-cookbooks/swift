@@ -20,7 +20,7 @@
 include_recipe "osops-utils"
 
 template "/usr/bin/swift-dispersion-populate" do
-  source "patches/swift-dispersion-populate.1.4.8-0ubuntu2"
+  source "patches/swift-dispersion-populate.1.4.8-0ubuntu2.erb"
   owner "root"
   group "root"
   mode "0755"
@@ -28,7 +28,7 @@ template "/usr/bin/swift-dispersion-populate" do
 end
 
 template "/usr/bin/swift-dispersion-report" do
-  source "patches/swift-dispersion-report.1.4.8-0ubuntu2"
+  source "patches/swift-dispersion-report.1.4.8-0ubuntu2.erb"
   owner "root"
   group "root"
   mode "0755"
