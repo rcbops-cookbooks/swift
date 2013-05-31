@@ -13,7 +13,7 @@ recipe            "swift::container-server", "Installs the swift container serve
   supports os
 end
 
-%w{ dsh openssl osops-utils sysctl memcached }.each do |dep|
+%w{ dsh openssl osops-utils sysctl memcached-openstack }.each do |dep|
   depends dep
 end
 
