@@ -130,7 +130,7 @@ use = egg:swift#memcache
 # commas, as in: 10.1.2.3:11211,10.1.2.4:11211
 # memcache_servers = 127.0.0.1:11211
 #####
-memcache_servers = <%= @memcache_servers.join(",") %>
+memcache_servers = <%= @memcache_servers %>
 
 [filter:ratelimit]
 use = egg:swift#ratelimit
