@@ -181,8 +181,9 @@ a
 License and Author
 ====
 
-Author:: Ron Pedde (<ron.pedde@rackspace.com>)
-Author:: Will Kelly (<will.kelly@rackspace.com>)
+Author:: Ron Pedde (<ron.pedde@rackspace.com>)  
+Author:: Will Kelly (<will.kelly@rackspace.com>)  
+Author:: Andy McCrae (<andrew.mccrae@rackspace.co.uk>)  
 
 Copyright:: 2012, Rackspace US, Inc.
 
