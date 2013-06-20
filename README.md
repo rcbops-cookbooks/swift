@@ -100,6 +100,7 @@ Deps
 
  * dsh
  * keystone
+ * memcached-openstack
  * monitoring
  * openssl
  * osops-utils
