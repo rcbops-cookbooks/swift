@@ -102,6 +102,7 @@ template "/root/swift-openrc" do
     "password" => keystone["users"][keystone["admin_user"]]["password"],
     "keystone_api_ipaddress" => ks_service_endpoint["host"],
     "keystone_service_port" => ks_service_endpoint["port"],
+    "keystone_service_protocol" => ks_service_endpoint["scheme"],
     "auth_strategy" => "keystone",
   }
   variables(vars)
