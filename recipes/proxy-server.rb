@@ -17,7 +17,7 @@
 # limitations under the License.
 
 include_recipe "swift::common"
-include_recipe "swift::memcached"
+include_recipe "memcached-openstack"
 include_recipe "osops-utils"
 
 # Find the node that ran the swift-setup recipe and grab his passswords
@@ -104,18 +104,17 @@ else
     statsd_endpoint={"host"=>"undefined","port"=>"undefined"}
 end
 
-memcache_endpoints = get_realserver_endpoints("swift-proxy-server",
-                                            "swift", "memcache")
+memcache_endpoints = get_realserver_endpoints("memcached", "memcached", "cache")
 
 # We'll just use a single memcache if we're set up as a management
 # server, so as not to pollute the production memcache servers
 if node["roles"].include?("swift-management-server")
-  memcache_endpoints = [ get_bind_endpoint("swift","memcache") ]
+  memcache_endpoints = [ get_bind_endpoint("memcached","cache") ]
 end
 
 memcache_servers = memcache_endpoints.collect do |endpoint|
   "#{endpoint["host"]}:#{endpoint["port"]}"
-end
+end.join(",")
 
 proxy_bind = get_bind_endpoint("swift", "proxy")
 proxy_access = get_access_endpoint("swift-proxy-server", "swift", "proxy")
@@ -144,5 +143,5 @@ template "/etc/swift/proxy-server.conf" do
             "statsd_host" => statsd_endpoint["host"],
             "statsd_port" => statsd_endpoint["port"]
             )
-  notifies :restart, resources(:service => "swift-proxy"), :immediately
+  notifies :restart, "service[swift-proxy]", :immediately
 end
