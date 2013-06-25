@@ -1,3 +1,4 @@
+name              "swift"
 maintainer        "Rackspace US, Inc."
 license           "Apache 2.0"
 description       "Installs and configures Openstack Swift"
@@ -12,7 +13,7 @@ recipe            "swift::container-server", "Installs the swift container serve
   supports os
 end
 
-%w{ dsh monitoring openssl osops-utils sysctl memcached }.each do |dep|
+%w{ dsh memcached-openstack monitoring openssl osops-utils sysctl }.each do |dep|
   depends dep
 end
 

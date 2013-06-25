@@ -34,9 +34,6 @@ default["swift"]["services"]["container-server"]["port"] = 6001             # no
 default["swift"]["services"]["account-server"]["network"] = "swift"         # node_attribute (inherited from cluster?)
 default["swift"]["services"]["account-server"]["port"] = 6002               # node_attribute (inherited from cluster?)
 
-default["swift"]["services"]["memcache"]["network"] = "swift"               # node_attribute (inherited from cluster?)
-default["swift"]["services"]["memcache"]["port"] = 11211                    # node_attribute (inherited from cluster?)
-
 default["swift"]["services"]["ring-repo"]["network"] = "swift"              # node_attribute (inherited from cluster?)
 default["swift"]["services"]["ring-repo"]["port"] = 9418                    # node_attribute (inherited from cluster?)
 default["swift"]["services"]["ring-repo"]["scheme"] = "git"                 # node_attribute

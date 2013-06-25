@@ -64,7 +64,7 @@ execute "initialize git repo" do
   command "git init --bare && touch git-daemon-export-ok"
   creates "#{platform_options["git_dir"]}/rings/config"
   action :run
-  notifies :run, resources(:execute => "create empty git repo"), :immediately
+  notifies :run, "execute[create empty git repo]", :immediately
 end
 
 # epel/f-17 missing systemd-ified inits
@@ -102,7 +102,7 @@ cookbook_file "/etc/default/git-daemon" do
   mode "644"
   source "git-daemon.default"
   action :create
-  notifies :restart, resources(:service => "git-daemon"), :immediately
+  notifies :restart, "service[git-daemon]", :immediately
   not_if { platform?(%w{fedora centos redhat}) }
 end
 
