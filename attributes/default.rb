@@ -5,6 +5,7 @@ default["swift"]["authmode"] = "swauth"                                     # cl
 default["swift"]["audit_hour"] = "5"                                        # cluster_attribute
 default["swift"]["disk_enum_expr"] = "node[:block_device]"                  # cluster_attribute
 default["swift"]["auto_rebuild_rings"] = false                              # cluster_attribute
+default["swift"]["autozone"] = false                                        # cluster_attribute
 
 default["swift"]["service_tenant_name"] = "service"                         # node_attribute
 default["swift"]["service_user"] = "swift"                                  # node_attribute
