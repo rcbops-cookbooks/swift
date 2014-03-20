@@ -243,7 +243,7 @@ operator_roles = Member,admin
 use = egg:swift#keystoneauth
 
 [filter:authtoken]
-paste.filter_factory = keystone.middleware.auth_token:filter_factory
+paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 auth_host = <%= @keystone_api_ipaddress %>
 auth_port = <%= @keystone_admin_port %>
 auth_protocol = <%= @keystone_admin_protocol %>
